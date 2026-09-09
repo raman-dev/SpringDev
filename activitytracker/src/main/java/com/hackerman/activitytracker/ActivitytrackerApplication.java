@@ -7,9 +7,11 @@ import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication(exclude={
 		DataSourceAutoConfiguration.class})
+@Import(MySecurityConfig.class)
 public class ActivitytrackerApplication {
 
 	public static void main(String[] args) {

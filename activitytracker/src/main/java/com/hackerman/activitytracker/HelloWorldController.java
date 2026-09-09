@@ -12,8 +12,8 @@ public class HelloWorldController {
 
 
     @GetMapping("/index")
-    public ResponseEntity<Person> index(){
-        return ResponseEntity.ok().body(new Person("Raman","Deep"));
+    public Person index(){
+        return new Person("Raman","Deep");
     }
 
 
