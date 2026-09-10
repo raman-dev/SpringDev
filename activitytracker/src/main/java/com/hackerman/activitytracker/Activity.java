@@ -38,10 +38,10 @@ public class Activity {
 
     @Override
     public String toString() {
-        return "Activity{" +
-                "\n\tname='" + name + '\'' +
-                ",\n\tstartTimeStamp='" + startTimeStamp + '\'' +
-                ",\n\tendTimeStamp='" + endTimeStamp + '\'' +
-                '}';
+        return "Activity {" +
+                "\n\t\tname='" + name + '\'' +
+                ",\n\t\tstartTimeStamp='" + startTimeStamp + '\'' +
+                ",\n\t\tendTimeStamp='" + endTimeStamp + '\'' +
+                "\n\t}";
     }
 }
