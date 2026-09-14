@@ -10,4 +10,6 @@ public interface ActivityRepository extends CrudRepository<Activity, Long> {
 
     @Query("SELECT DISTINCT curr.name from Activity curr")
     public List<String> findAllUniqueNames();
+
+    public List<ActivityDTO> findAllBy();
 }

@@ -24,8 +24,8 @@ public class ActivityRestController {
     }
 
     @GetMapping("/get/activity/all")
-    public List<Activity> getAllActivity(){
-        return (List<Activity>)(activityRepository.findAll());
+    public List<ActivityDTO> getAllActivity(){
+        return activityRepository.findAllBy();
     }
 
     @PostMapping("/create")
