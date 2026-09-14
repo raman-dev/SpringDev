@@ -19,8 +19,8 @@ public class MySecurityConfig {
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests(authorize -> {
                     authorize
-                            .requestMatchers(HttpMethod.GET,"/get-*").permitAll()
-                            .requestMatchers(HttpMethod.POST,"/create-activity").permitAll()
+                            .requestMatchers(HttpMethod.GET,"/get/*/*").permitAll()
+                            .requestMatchers(HttpMethod.POST,"/create-*").permitAll()
                             .anyRequest().authenticated();
                 });
         return http.build();

@@ -10,8 +10,12 @@ public class HelloWorldController {
 
     public record Person (String firstName, String lastName){};
 
-    @Autowired
-    MyRepository myRepoContainer;
+//    @Autowired
+    private ActivityRepository activityRepository;
+
+    public HelloWorldController(ActivityRepository activityRepository){
+        this.activityRepository = activityRepository;
+    }
 
     @GetMapping("/get-person")
     public Person index(){
@@ -23,6 +27,8 @@ public class HelloWorldController {
     public Activity getActivity(){
         return new Activity("Programming","8am","11am");
     }
+
+
     @PostMapping("/create-activity")
     public Activity createActivity(@RequestBody Activity activity){
         //check if startTimeStamp in iso format
@@ -31,9 +37,9 @@ public class HelloWorldController {
         return activity;
     }
 
-    @PostMapping("/create-activty-jpa")
+    @PostMapping("/create-activity-jpa")
     public Activity createActivityJpa(@RequestBody Activity activity){
-        myRepoContainer.save(activity);
+        activityRepository.save(activity);
         return activity;
     }
 

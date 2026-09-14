@@ -8,7 +8,7 @@ public class Activity {
 
     @Id
     @Column(name="id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long entityId;
 
     @Column(name="name")
@@ -21,7 +21,6 @@ public class Activity {
     private String endTimeStamp;
 
     public Activity (){}
-
 
     public Activity(String name, String startTimeStamp, String endTimeStamp) {
         this.name = name;
