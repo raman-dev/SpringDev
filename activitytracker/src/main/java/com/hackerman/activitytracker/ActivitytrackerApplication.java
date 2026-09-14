@@ -9,8 +9,7 @@ import org.springframework.boot.security.autoconfigure.actuate.web.servlet.Manag
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-@SpringBootApplication(exclude={
-		DataSourceAutoConfiguration.class})
+@SpringBootApplication
 @Import(MySecurityConfig.class)
 public class ActivitytrackerApplication {
 
@@ -19,10 +18,17 @@ public class ActivitytrackerApplication {
 	}
 
 	@Bean
+	public MyRepository myRepoContainer(ActivityRepository repository){
+		return new MyRepository(repository);
+	}
+
+	@Bean
 	CommandLineRunner clr(){
 		return  x -> {
 			System.out.println("Hello From Raman!");
 		};
 	}
+
+
 
 }

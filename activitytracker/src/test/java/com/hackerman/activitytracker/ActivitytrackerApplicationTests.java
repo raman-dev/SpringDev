@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -19,6 +21,9 @@ class ActivitytrackerApplicationTests {
 
 	@Autowired
 	private TestRestTemplate restTemplate;
+
+	@Autowired
+	private MyRepository myRepoContainer;
 
 	static final String name = "Programming";
 	static final String startTimeStamp = "8am";
@@ -71,5 +76,22 @@ class ActivitytrackerApplicationTests {
 		assertEquals(activity.getName(),name);
 		assertEquals(activity.getStartTimeStamp(),startTimeStamp);
 		assertEquals(activity.getEndTimeStamp(),endTimeStamp);
+	}
+
+	@Test
+	public void testActivityDatabaseCreationWithRepository(){
+		Activity testActivity = new Activity(name,startTimeStamp,endTimeStamp);
+		myRepoContainer.save(testActivity);
+
+		ArrayList<Activity> list = (ArrayList<Activity>)myRepoContainer.repository.findByName(testActivity.getName());
+
+		assertThat(list.size()).isGreaterThan(0);
+
+		Activity savedActivity = list.get(0);
+
+
+		assertEquals(savedActivity.getName(),testActivity.getName());
+		assertEquals(savedActivity.getStartTimeStamp(),testActivity.getStartTimeStamp());
+		assertEquals(savedActivity.getEndTimeStamp(),testActivity.getEndTimeStamp());
 	}
 }

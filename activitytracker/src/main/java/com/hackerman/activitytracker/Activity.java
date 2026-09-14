@@ -1,15 +1,36 @@
 package com.hackerman.activitytracker;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name="activity")
 public class Activity {
 
+    @Id
+    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long entityId;
+
+    @Column(name="name")
     private String name;
+
+    @Column(name="start_time_stamp")
     private String startTimeStamp;
+
+    @Column(name="end_time_stamp")
     private String endTimeStamp;
+
+    public Activity (){}
+
 
     public Activity(String name, String startTimeStamp, String endTimeStamp) {
         this.name = name;
         this.startTimeStamp = startTimeStamp;
         this.endTimeStamp = endTimeStamp;
+    }
+
+    public Long getEntityId(){
+        return entityId;
     }
 
     public String getName() {
