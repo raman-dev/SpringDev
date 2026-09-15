@@ -10,8 +10,7 @@ public class HelloWorldController {
 
     public record Person (String firstName, String lastName){};
 
-//    @Autowired
-    private ActivityRepository activityRepository;
+    private final ActivityRepository activityRepository;
 
     public HelloWorldController(ActivityRepository activityRepository){
         this.activityRepository = activityRepository;
