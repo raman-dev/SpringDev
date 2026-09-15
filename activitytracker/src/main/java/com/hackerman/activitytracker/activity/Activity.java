@@ -1,4 +1,4 @@
-package com.hackerman.activitytracker;
+package com.hackerman.activitytracker.activity;
 
 import jakarta.persistence.*;
 
@@ -14,6 +14,7 @@ public class Activity {
     @Column(name="name")
     private String name;
 
+    //ensure timestamps are in iso 8601 format
     @Column(name="start_time_stamp")
     private String startTimeStamp;
 

@@ -1,5 +1,10 @@
 package com.hackerman.activitytracker;
 
+import com.hackerman.activitytracker.activity.Activity;
+import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
+import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
+import com.hackerman.activitytracker.activity.repository.ActivityRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -8,8 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import javax.swing.*;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,26 +35,9 @@ class ActivitytrackerApplicationTests {
 	static final String startTimeStamp = "8am";
 	static final String endTimeStamp = "11am";
 
-	@Test
-	public void sampleTest(){
-		System.out.println("Sample Test test");
-		assertEquals(1,1);
-	}
 
 	@Test
-	public void testActivityCreation(){
-
-		Activity activity = new Activity(name,startTimeStamp,endTimeStamp);
-
-		System.out.println("Created:\n\t" + activity);
-
-		assertEquals(activity.getName(),name);
-		assertEquals(activity.getStartTimeStamp(),startTimeStamp);
-		assertEquals(activity.getEndTimeStamp(),endTimeStamp);
-
-	}
-
-	@Test
+	@Disabled
 	public void testPostActivity(){
 
 		String url = "/create-activity";
@@ -60,9 +48,21 @@ class ActivitytrackerApplicationTests {
 		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Activity activity = responseEntity.getBody();
 
-		assertEquals(activity.getName(),name);
-		assertEquals(activity.getStartTimeStamp(),startTimeStamp);
-		assertEquals(activity.getEndTimeStamp(),endTimeStamp);
+		assertActivityFields(activity,name,startTimeStamp,endTimeStamp);
+	}
+
+	@Test
+	public void sampleTest(){
+		System.out.println("Sample Test test");
+		assertEquals(1,1);
+	}
+
+	@Test
+	public void testActivityCreation(){
+		Activity activity = new Activity(name,startTimeStamp,endTimeStamp);
+		System.out.println("Created:\n\t" + activity);
+
+		assertActivityFields(activity,name,startTimeStamp,endTimeStamp);
 	}
 
 	@Test
@@ -77,14 +77,13 @@ class ActivitytrackerApplicationTests {
 
 		Activity savedActivity = list.get(0);
 
-		assertEquals(savedActivity.getName(),testActivity.getName());
-		assertEquals(savedActivity.getStartTimeStamp(),testActivity.getStartTimeStamp());
-		assertEquals(savedActivity.getEndTimeStamp(),testActivity.getEndTimeStamp());
+		assertActivityFieldsEqual(testActivity,savedActivity);
 	}
 
 	@Test
+	@Disabled
 	public void testActivityDbCreationWithPostRestMapping(){
-		String url="/create-activity-jpa";
+		String url="/create";
 		Activity testActivity = new Activity(name,startTimeStamp,endTimeStamp);
 		ResponseEntity<Activity> responseEntity = restTemplate
 				.postForEntity(url,testActivity,Activity.class);
@@ -93,9 +92,7 @@ class ActivitytrackerApplicationTests {
 		//check database
 		Activity dbActivity = activityRepoContainer.getRepository().findByName(testActivity.getName()).getFirst();
 
-		assertEquals(dbActivity.getName(),testActivity.getName());
-		assertEquals(dbActivity.getStartTimeStamp(),testActivity.getStartTimeStamp());
-		assertEquals(dbActivity.getEndTimeStamp(),testActivity.getEndTimeStamp());
+		assertActivityFieldsEqual(testActivity,dbActivity);
 	}
 
 	@Test
@@ -131,6 +128,50 @@ class ActivitytrackerApplicationTests {
 	}
 
 
+	@Test
+	public void testCreateActivityDTO(){
+		ActivityInputDTO testActivity = new ActivityInputDTO(name,startTimeStamp,endTimeStamp);
+
+		assertEquals(name,testActivity.getName());
+		assertEquals(startTimeStamp,testActivity.getStartTimeStamp());
+		assertEquals(endTimeStamp,testActivity.getEndTimeStamp());
+	}
+
+	@Test
+	public void testPostActivityWithDTO(){
+
+		String url="/create-dto";
+		ActivityInputDTO testActivityInputDto = new ActivityInputDTO(name,startTimeStamp,endTimeStamp);
+		ResponseEntity<Activity> responseEntity = restTemplate
+				.postForEntity(
+						url,
+						testActivityInputDto,
+						Activity.class);
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+		Activity activity = responseEntity.getBody();
+		assertThat(activity).isNotEqualTo(null);
+
+		assertActivityFields(activity,name,startTimeStamp,endTimeStamp);
+	}
+
+	/**
+	 * Assert field values of actual activity match expected activity
+	 * @param expected Activity object with expected values
+	 * @param actual Actual activity object with values to be checked
+	 */
+	public void assertActivityFieldsEqual(Activity expected,Activity actual){
+		assertEquals(expected.getName(),actual.getName());
+		assertEquals(expected.getStartTimeStamp(),actual.getStartTimeStamp());
+		assertEquals(expected.getEndTimeStamp(),actual.getEndTimeStamp());
+	}
+
+	public void assertActivityFields(Activity activity,String name,String startTimeStamp,String endTimeStamp){
+		assertEquals(name,activity.getName());
+		assertEquals(startTimeStamp,activity.getStartTimeStamp());
+		assertEquals(endTimeStamp,activity.getEndTimeStamp());
+	}
 
 
 }

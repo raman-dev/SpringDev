@@ -1,5 +1,6 @@
-package com.hackerman.activitytracker;
+package com.hackerman.activitytracker.activity.repository;
 
+import com.hackerman.activitytracker.activity.Activity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 

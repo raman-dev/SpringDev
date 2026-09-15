@@ -1,4 +1,4 @@
-package com.hackerman.activitytracker;
+package com.hackerman.activitytracker.activity.repository;
 
 public class ActivityRepoContainer {
     private ActivityRepository repository;
