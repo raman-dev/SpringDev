@@ -3,26 +3,26 @@ package com.hackerman.activitytracker.activity.repository;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 
 public class ActivityInputDTO {
 
-
     @NotNull
     @Size(min=3, max=128)
     private String name;
 
-    @NotNull
+    @NotNull(message = "start timestamp cannot be null")
     private String startTimeStamp;
 
-    @NotNull
+    @NotNull(message = "end timestamp cannot be null")
     private String endTimeStamp;
 
-
-    private LocalDateTime date;
+    private LocalDate date;
     private LocalTime time;
+
+    public ActivityInputDTO(){}
 
     public ActivityInputDTO(String name, String startTimeStamp, String endTimeStamp) {
         this.endTimeStamp = endTimeStamp;
@@ -30,11 +30,27 @@ public class ActivityInputDTO {
         this.name = name;
     }
 
-    public ActivityInputDTO(String name, String startTimeStamp, String endTimeStamp, LocalDateTime date, LocalTime time) {
+    public ActivityInputDTO(String name, String startTimeStamp, String endTimeStamp, LocalDate date, LocalTime time) {
         this.name = name;
         this.startTimeStamp = startTimeStamp;
         this.endTimeStamp = endTimeStamp;
         this.date = date;
+        this.time = time;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalTime time) {
         this.time = time;
     }
 

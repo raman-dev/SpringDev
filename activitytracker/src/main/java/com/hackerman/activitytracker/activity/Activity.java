@@ -2,6 +2,8 @@ package com.hackerman.activitytracker.activity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name="activity")
 public class Activity {
@@ -20,6 +22,9 @@ public class Activity {
 
     @Column(name="end_time_stamp")
     private String endTimeStamp;
+
+    @Column(name="date")
+    private LocalDate date;
 
     public Activity (){}
 

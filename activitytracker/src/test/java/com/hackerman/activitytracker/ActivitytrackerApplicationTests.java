@@ -1,6 +1,7 @@
 package com.hackerman.activitytracker;
 
 import com.hackerman.activitytracker.activity.Activity;
+import com.hackerman.activitytracker.activity.repository.ActivityDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
@@ -13,7 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import javax.swing.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +36,8 @@ class ActivitytrackerApplicationTests {
 	static final String name = "Programming";
 	static final String startTimeStamp = "8am";
 	static final String endTimeStamp = "11am";
+	static final LocalDate date = LocalDate.of(2026,9,15);
+	static final LocalTime time = LocalTime.of(16,26);
 
 
 	@Test
@@ -138,6 +142,18 @@ class ActivitytrackerApplicationTests {
 	}
 
 	@Test
+	public void testCreateActivityDTOWithDateTime(){
+		ActivityInputDTO testActivity = new ActivityInputDTO(name,startTimeStamp,endTimeStamp,date,time);
+
+		assertEquals(name,testActivity.getName());
+		assertEquals(startTimeStamp,testActivity.getStartTimeStamp());
+		assertEquals(endTimeStamp,testActivity.getEndTimeStamp());
+
+		assertEquals(date,testActivity.getDate());
+		assertEquals(time,testActivity.getTime());
+	}
+
+	@Test
 	public void testPostActivityWithDTO(){
 
 		String url="/create-dto";
@@ -155,6 +171,38 @@ class ActivitytrackerApplicationTests {
 
 		assertActivityFields(activity,name,startTimeStamp,endTimeStamp);
 	}
+
+
+	@Test
+	public void testPostActivityDtoWithDatetime(){
+
+		String url="/create-dto-datetime";
+
+		ActivityInputDTO testActivityInputDto = new ActivityInputDTO(
+				name,
+				startTimeStamp,
+				endTimeStamp,
+				date,
+				time
+		);
+
+		ResponseEntity<ActivityInputDTO> responseEntity = restTemplate
+				.postForEntity(
+						url,//post url
+						testActivityInputDto,//request body arg
+						ActivityInputDTO.class);//response body type
+
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+		ActivityInputDTO activityDTO = responseEntity.getBody();
+		assertThat(activityDTO).isNotEqualTo(null);
+
+
+		assertEquals(date,activityDTO.getDate());
+		assertEquals(time,activityDTO.getTime());
+
+	}
+
 
 	/**
 	 * Assert field values of actual activity match expected activity
