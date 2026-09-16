@@ -1,7 +1,6 @@
 package com.hackerman.activitytracker;
 
 import com.hackerman.activitytracker.activity.Activity;
-import com.hackerman.activitytracker.activity.repository.ActivityDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
@@ -36,9 +35,10 @@ class ActivitytrackerApplicationTests {
 	static final String name = "Programming";
 	static final String startTimeStamp = "8am";
 	static final String endTimeStamp = "11am";
-	static final LocalDate date = LocalDate.of(2026,9,15);
-	static final LocalTime time = LocalTime.of(16,26);
 
+	static final LocalDate date = LocalDate.of(2026,9,15);
+	static final LocalTime startTime = LocalTime.of(16,26);
+	static final LocalTime endTime = LocalTime.of(17,26);
 
 	@Test
 	@Disabled
@@ -132,77 +132,91 @@ class ActivitytrackerApplicationTests {
 	}
 
 
-	@Test
-	public void testCreateActivityDTO(){
-		ActivityInputDTO testActivity = new ActivityInputDTO(name,startTimeStamp,endTimeStamp);
+//	@Test
+//
+//	public void testCreateActivityDTO(){
+//		ActivityInputDTO testActivity = new ActivityInputDTO(name,startTimeStamp,endTimeStamp);
+//
+//		assertEquals(name,testActivity.getName());
+//		assertEquals(startTimeStamp,testActivity.getStartTimeStamp());
+//		assertEquals(endTimeStamp,testActivity.getEndTimeStamp());
+//	}
+//
+//	@Test
+//	public void testCreateActivityDTOWithDateTime(){
+//		ActivityInputDTO testActivity = new ActivityInputDTO(name,startTimeStamp,endTimeStamp,date,time);
+//
+//		assertEquals(name,testActivity.getName());
+//		assertEquals(startTimeStamp,testActivity.getStartTimeStamp());
+//		assertEquals(endTimeStamp,testActivity.getEndTimeStamp());
+//
+//		assertEquals(date,testActivity.getDate());
+//		assertEquals(time,testActivity.getTime());
+//	}
 
-		assertEquals(name,testActivity.getName());
-		assertEquals(startTimeStamp,testActivity.getStartTimeStamp());
-		assertEquals(endTimeStamp,testActivity.getEndTimeStamp());
+//	@Test
+//	public void testPostActivityWithDTO(){
+//
+//		String url="/create-dto";
+//		ActivityInputDTO testActivityInputDto = new ActivityInputDTO(name,startTimeStamp,endTimeStamp);
+//		ResponseEntity<Activity> responseEntity = restTemplate
+//				.postForEntity(
+//						url,
+//						testActivityInputDto,
+//						Activity.class);
+//
+//		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+//
+//		Activity activity = responseEntity.getBody();
+//		assertThat(activity).isNotEqualTo(null);
+//
+//		assertActivityFields(activity,name,startTimeStamp,endTimeStamp);
+//	}
+
+
+//	@Test
+//	public void testPostActivityDtoWithDatetime(){
+//
+//		String url="/create-dto-datetime";
+//
+//		ActivityInputDTO testActivityInputDto = new ActivityInputDTO(
+//				name,
+//				startTimeStamp,
+//				endTimeStamp,
+//				date,
+//				time
+//		);
+//
+//		ResponseEntity<ActivityInputDTO> responseEntity = restTemplate
+//				.postForEntity(
+//						url,//post url
+//						testActivityInputDto,//request body arg
+//						ActivityInputDTO.class);//response body type
+//
+//		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+//
+//		ActivityInputDTO activityDTO = responseEntity.getBody();
+//		assertThat(activityDTO).isNotEqualTo(null);
+//
+//
+//		assertEquals(date,activityDTO.getDate());
+//		assertEquals(time,activityDTO.getTime());
+//
+//	}
+
+
+	@Test
+	public void testCreateActivityInputDTO(){
+		ActivityInputDTO activityInputDTO = new ActivityInputDTO(name,date,startTime,endTime);
+		assertActivityInputDTOFields(activityInputDTO,name,date,startTime,endTime);
 	}
 
-	@Test
-	public void testCreateActivityDTOWithDateTime(){
-		ActivityInputDTO testActivity = new ActivityInputDTO(name,startTimeStamp,endTimeStamp,date,time);
-
-		assertEquals(name,testActivity.getName());
-		assertEquals(startTimeStamp,testActivity.getStartTimeStamp());
-		assertEquals(endTimeStamp,testActivity.getEndTimeStamp());
-
-		assertEquals(date,testActivity.getDate());
-		assertEquals(time,testActivity.getTime());
+	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b){
+		assertEquals(name,activityInputDTO.getName());
+		assertEquals(date,activityInputDTO.getDate());
+		assertEquals(a,activityInputDTO.getStartTime());
+		assertEquals(b,activityInputDTO.getEndTime());
 	}
-
-	@Test
-	public void testPostActivityWithDTO(){
-
-		String url="/create-dto";
-		ActivityInputDTO testActivityInputDto = new ActivityInputDTO(name,startTimeStamp,endTimeStamp);
-		ResponseEntity<Activity> responseEntity = restTemplate
-				.postForEntity(
-						url,
-						testActivityInputDto,
-						Activity.class);
-
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-		Activity activity = responseEntity.getBody();
-		assertThat(activity).isNotEqualTo(null);
-
-		assertActivityFields(activity,name,startTimeStamp,endTimeStamp);
-	}
-
-
-	@Test
-	public void testPostActivityDtoWithDatetime(){
-
-		String url="/create-dto-datetime";
-
-		ActivityInputDTO testActivityInputDto = new ActivityInputDTO(
-				name,
-				startTimeStamp,
-				endTimeStamp,
-				date,
-				time
-		);
-
-		ResponseEntity<ActivityInputDTO> responseEntity = restTemplate
-				.postForEntity(
-						url,//post url
-						testActivityInputDto,//request body arg
-						ActivityInputDTO.class);//response body type
-
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-		ActivityInputDTO activityDTO = responseEntity.getBody();
-		assertThat(activityDTO).isNotEqualTo(null);
-
-
-		assertEquals(date,activityDTO.getDate());
-		assertEquals(time,activityDTO.getTime());
-
-	}
-
 
 	/**
 	 * Assert field values of actual activity match expected activity

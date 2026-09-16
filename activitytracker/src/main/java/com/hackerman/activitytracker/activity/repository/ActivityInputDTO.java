@@ -13,45 +13,22 @@ public class ActivityInputDTO {
     @Size(min=3, max=128)
     private String name;
 
-    @NotNull(message = "start timestamp cannot be null")
-    private String startTimeStamp;
-
-    @NotNull(message = "end timestamp cannot be null")
-    private String endTimeStamp;
-
+    @NotNull
     private LocalDate date;
-    private LocalTime time;
 
-    public ActivityInputDTO(){}
+    @NotNull
+    private LocalTime startTime;
 
-    public ActivityInputDTO(String name, String startTimeStamp, String endTimeStamp) {
-        this.endTimeStamp = endTimeStamp;
-        this.startTimeStamp = startTimeStamp;
+    @NotNull
+    private LocalTime endTime;
+
+    public ActivityInputDTO(){};
+
+    public ActivityInputDTO(String name, LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.name = name;
-    }
-
-    public ActivityInputDTO(String name, String startTimeStamp, String endTimeStamp, LocalDate date, LocalTime time) {
-        this.name = name;
-        this.startTimeStamp = startTimeStamp;
-        this.endTimeStamp = endTimeStamp;
         this.date = date;
-        this.time = time;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public LocalTime getTime() {
-        return time;
-    }
-
-    public void setTime(LocalTime time) {
-        this.time = time;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     public String getName() {
@@ -62,28 +39,27 @@ public class ActivityInputDTO {
         this.name = name;
     }
 
-    public String getStartTimeStamp() {
-        return startTimeStamp;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public void setStartTimeStamp(String startTimeStamp) {
-        this.startTimeStamp = startTimeStamp;
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
-    public String getEndTimeStamp() {
-        return endTimeStamp;
+    public LocalTime getStartTime() {
+        return startTime;
     }
 
-    public void setEndTimeStamp(String endTimeStamp) {
-        this.endTimeStamp = endTimeStamp;
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
     }
 
-    @Override
-    public String toString() {
-        return "ActivityInputDTO{" +
-                "\n\t\tendTimeStamp='" + endTimeStamp + '\'' +
-                ",\n\t\tstartTimeStamp='" + startTimeStamp + '\'' +
-                ",\n\t\tname='" + name + '\'' +
-                '}';
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 }
