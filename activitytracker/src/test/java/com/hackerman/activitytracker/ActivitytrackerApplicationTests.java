@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,6 +40,7 @@ class ActivitytrackerApplicationTests {
 	static final LocalDate date = LocalDate.of(2026,9,15);
 	static final LocalTime startTime = LocalTime.of(16,26);
 	static final LocalTime endTime = LocalTime.of(17,26);
+	static final TimeZone timeZone = TimeZone.getDefault();
 
 	@Test
 	@Disabled
@@ -207,7 +209,7 @@ class ActivitytrackerApplicationTests {
 
 	@Test
 	public void testCreateActivityInputDTO(){
-		ActivityInputDTO activityInputDTO = new ActivityInputDTO(name,date,startTime,endTime);
+		ActivityInputDTO activityInputDTO = new ActivityInputDTO(name,date,startTime,endTime,timeZone);
 		assertActivityInputDTOFields(activityInputDTO,name,date,startTime,endTime);
 	}
 
