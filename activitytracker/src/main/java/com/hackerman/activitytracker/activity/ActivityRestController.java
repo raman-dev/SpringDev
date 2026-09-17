@@ -53,7 +53,7 @@ public class ActivityRestController {
 //        return ResponseEntity.ok().body(activity);
 //    }
 
-    @PostMapping("/create-dto-datetime")
+    @PostMapping("/create/dto")
     public ResponseEntity createActivityDtoWithDatetime(@Valid @RequestBody ActivityInputDTO activityInputDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             bindingResult.getAllErrors().forEach(x -> System.out.println(x));

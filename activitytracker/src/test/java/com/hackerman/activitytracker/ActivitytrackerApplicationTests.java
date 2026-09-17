@@ -210,14 +210,15 @@ class ActivitytrackerApplicationTests {
 	@Test
 	public void testCreateActivityInputDTO(){
 		ActivityInputDTO activityInputDTO = new ActivityInputDTO(name,date,startTime,endTime,timeZone);
-		assertActivityInputDTOFields(activityInputDTO,name,date,startTime,endTime);
+		assertActivityInputDTOFields(activityInputDTO,name,date,startTime,endTime,timeZone);
 	}
 
-	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b){
+	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){
 		assertEquals(name,activityInputDTO.getName());
 		assertEquals(date,activityInputDTO.getDate());
 		assertEquals(a,activityInputDTO.getStartTime());
 		assertEquals(b,activityInputDTO.getEndTime());
+		assertEquals(timeZone,activityInputDTO.getTimeZone());
 	}
 
 	/**
