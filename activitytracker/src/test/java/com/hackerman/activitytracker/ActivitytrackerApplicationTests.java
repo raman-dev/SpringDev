@@ -213,6 +213,11 @@ class ActivitytrackerApplicationTests {
 		assertActivityInputDTOFields(activityInputDTO,name,date,startTime,endTime,timeZone);
 	}
 
+	@Test
+	public void testGetActivity(){
+//		ResponseEntity<Activity> responseEntity = restTemplate.getForEntity();
+	}
+
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){
 		assertEquals(name,activityInputDTO.getName());
 		assertEquals(date,activityInputDTO.getDate());

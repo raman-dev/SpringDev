@@ -23,8 +23,8 @@ public class Activity {
     @Column(name="end_time_stamp")
     private String endTimeStamp;
 
-    @Column(name="date")
-    private LocalDate date;
+//    @Column(name="date")
+//    private LocalDate date;
 
     public Activity (){}
 

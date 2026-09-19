@@ -1,8 +1,9 @@
 package com.hackerman.activitytracker.security;
 
-import org.springframework.boot.web.server.Http2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -12,15 +13,20 @@ import org.springframework.security.web.SecurityFilterChain;
 public class ActivitySecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http){
-        http.csrf((csrf) -> csrf.disable());
-        http.authorizeHttpRequests((authz) -> {
+    public SecurityFilterChain activityCrudFilterChain(HttpSecurity http){
+        http.csrf((csrf) -> csrf.disable())
+            .authorizeHttpRequests(authz -> {
             authz
-                    .requestMatchers("/get/*").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/get/*/*").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/get/*").permitAll()
                     .requestMatchers("/create").hasRole("USER")
-                    .requestMatchers("/create/dto").hasRole("USER");
+                    .anyRequest().authenticated();
+//                    .requestMatchers("/create/dto").hasRole("USER");
         });
+        http.httpBasic(Customizer.withDefaults());
         return http.build();
     }
+
+
 
 }
