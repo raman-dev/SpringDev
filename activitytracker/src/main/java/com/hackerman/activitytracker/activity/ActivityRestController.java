@@ -61,4 +61,12 @@ public class ActivityRestController {
         }
         return ResponseEntity.ok().body(activityInputDTO);
     }
+
+    @PostMapping("/signup/create")
+    public ResponseEntity createUser(@Valid @RequestBody UserCreateDTO userCreateDTO){
+        //create user object with repository
+
+        return ResponseEntity.ok().build();
+    }
+
 }

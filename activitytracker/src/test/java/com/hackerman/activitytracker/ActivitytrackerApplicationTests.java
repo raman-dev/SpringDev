@@ -1,6 +1,7 @@
 package com.hackerman.activitytracker;
 
 import com.hackerman.activitytracker.activity.Activity;
+import com.hackerman.activitytracker.activity.UserCreateDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
@@ -216,6 +217,18 @@ class ActivitytrackerApplicationTests {
 	@Test
 	public void testGetActivity(){
 //		ResponseEntity<Activity> responseEntity = restTemplate.getForEntity();
+	}
+
+	@Test
+	public void testUserCreateDTO(){
+		final String email = "raman@examlpe.com";
+		final String password = "password";
+		final String matchingPassword = "password";
+		UserCreateDTO userCreateDTO = new UserCreateDTO(email,password,matchingPassword);
+
+		assertEquals(email,userCreateDTO.getEmail());
+		assertEquals(password,userCreateDTO.getPassword());
+		assertEquals(matchingPassword,userCreateDTO.getMatchingPassword());
 	}
 
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){
