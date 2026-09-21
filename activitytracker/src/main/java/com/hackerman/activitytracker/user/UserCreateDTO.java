@@ -1,4 +1,4 @@
-package com.hackerman.activitytracker.activity;
+package com.hackerman.activitytracker.user;
 
 import jakarta.validation.constraints.*;
 
@@ -12,15 +12,10 @@ public class UserCreateDTO {
     @Size(min=6,max=128)
     public String password;
 
-
     @NotBlank
     @Size(min=6,max=128)
     public String matchingPassword;
 
-    public UserCreateDTO(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
 
     public UserCreateDTO(String email, String password,String matchingPassword) {
         this.email = email;

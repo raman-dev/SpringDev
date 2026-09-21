@@ -20,6 +20,10 @@ public class ActivitySecurityConfig {
 
     @Bean
     public SecurityFilterChain activityCrudFilterChain(HttpSecurity http){
+        http.securityMatchers((requestMatcherConfigurer -> {
+            requestMatcherConfigurer.requestMatchers("/get/**");
+            requestMatcherConfigurer.requestMatchers("/create/**");
+        }));
         http.csrf((csrf) -> csrf.disable())
             .authorizeHttpRequests(authz -> {
                 authz
@@ -28,6 +32,19 @@ public class ActivitySecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/create").hasRole("USER")
                         .anyRequest().authenticated();
             });
+        http.httpBasic(Customizer.withDefaults());//http basic sends user and password with every request
+        http.formLogin(Customizer.withDefaults());//session based security, user pass once on success return session id use that every request
+        return http.build();
+    }
+
+
+    @Bean
+    public SecurityFilterChain userSecurityFilterChain(HttpSecurity http){
+        http.securityMatcher("/signup/**");
+        http.csrf((csrf) -> csrf.disable())
+                .authorizeHttpRequests(authz -> {
+                    authz.requestMatchers(HttpMethod.POST,"/signup/create").permitAll();
+                });
         http.httpBasic(Customizer.withDefaults());//http basic sends user and password with every request
         http.formLogin(Customizer.withDefaults());//session based security, user pass once on success return session id use that every request
         return http.build();
@@ -45,7 +62,6 @@ public class ActivitySecurityConfig {
                 .build();
         return new InMemoryUserDetailsManager(userDetails);
     }
-
 
 
 }

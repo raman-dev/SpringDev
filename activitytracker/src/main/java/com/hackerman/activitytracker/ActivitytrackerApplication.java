@@ -3,7 +3,6 @@ package com.hackerman.activitytracker;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
 import com.hackerman.activitytracker.security.ActivitySecurityConfig;
-import com.hackerman.activitytracker.security.MySecurityConfig;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -46,7 +45,7 @@ import org.springframework.context.annotation.Import;
  */
 
 @SpringBootApplication
-@Import(ActivitySecurityConfig.class)
+@Import({ActivitySecurityConfig.class})
 public class ActivitytrackerApplication {
 
 	public static void main(String[] args) {

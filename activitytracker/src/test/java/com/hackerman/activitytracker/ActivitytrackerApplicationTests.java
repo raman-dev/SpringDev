@@ -1,10 +1,11 @@
 package com.hackerman.activitytracker;
 
 import com.hackerman.activitytracker.activity.Activity;
-import com.hackerman.activitytracker.activity.UserCreateDTO;
+import com.hackerman.activitytracker.user.UserCreateDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
+import com.hackerman.activitytracker.user.MyUser;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -229,6 +230,30 @@ class ActivitytrackerApplicationTests {
 		assertEquals(email,userCreateDTO.getEmail());
 		assertEquals(password,userCreateDTO.getPassword());
 		assertEquals(matchingPassword,userCreateDTO.getMatchingPassword());
+	}
+
+	@Test
+	public void testUserCreate(){
+		final String email = "raman@example.com";
+		final String password = "password";
+		MyUser user = new MyUser(email,password);
+
+		assertEquals(email,user.getEmail());
+		assertEquals(password,user.getPassword());
+	}
+
+
+	@Test void testUserCreateApiWithDB(){
+
+		final String email = "raman@example.com";
+		final String password = "password";
+		final String matchingPassword = "password";
+		UserCreateDTO userCreateDTO = new UserCreateDTO(email,password,matchingPassword);
+
+		final String uri = "/signup/create";
+		ResponseEntity responseEntity = restTemplate.postForEntity(uri,userCreateDTO,ResponseEntity.class);
+
+		assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
 	}
 
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){

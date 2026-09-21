@@ -3,10 +3,12 @@ package com.hackerman.activitytracker.activity;
 import com.hackerman.activitytracker.activity.repository.ActivityDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
+import com.hackerman.activitytracker.user.MyUser;
+import com.hackerman.activitytracker.user.UserCreateDTO;
+import com.hackerman.activitytracker.user.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,9 +19,11 @@ public class ActivityRestController {
 
     //spring di's this without autowired
     ActivityRepository activityRepository;
+    UserRepository userRepository;
 
-    public ActivityRestController(ActivityRepository activityRepository){
+    public ActivityRestController(ActivityRepository activityRepository, UserRepository userRepository){
         this.activityRepository = activityRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/get/activity/names")
@@ -63,9 +67,18 @@ public class ActivityRestController {
     }
 
     @PostMapping("/signup/create")
-    public ResponseEntity createUser(@Valid @RequestBody UserCreateDTO userCreateDTO){
+    public ResponseEntity createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            bindingResult.getAllErrors().forEach((e) -> {System.out.println(e);});
+            return ResponseEntity.badRequest().build();
+        }
         //create user object with repository
-
+        MyUser alreadyExists = userRepository.findByEmail(userCreateDTO.getEmail());
+        if (alreadyExists != null){
+            return ResponseEntity.badRequest().body(List.of(new String[]{"User with this email already exists"}));
+        }
+        MyUser newUser = new MyUser(userCreateDTO.getEmail(),userCreateDTO.getPassword());
+        userRepository.save(newUser);
         return ResponseEntity.ok().build();
     }
 
