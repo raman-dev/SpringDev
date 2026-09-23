@@ -26,8 +26,7 @@ public class MyUserDetailsService implements UserDetailsService {
             throw UsernameNotFoundException.fromUsername(username);
         }
         MyUser user = userEntity.get();
-        return  User.withDefaultPasswordEncoder()
-                .username(user.getEmail())
+        return  User.withUsername(user.getEmail())
                 .password(user.getPassword())
                 .roles("USER")
                 .build();

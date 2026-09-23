@@ -20,6 +20,7 @@ public class ActivitySecurityConfig {
 
     @Bean
     public SecurityFilterChain activityCrudFilterChain(HttpSecurity http){
+        //enable this chain for only the following path
         http.securityMatchers((requestMatcherConfigurer -> {
             requestMatcherConfigurer.requestMatchers("/get/**");
             requestMatcherConfigurer.requestMatchers("/create/**");
@@ -40,6 +41,7 @@ public class ActivitySecurityConfig {
 
     @Bean
     public SecurityFilterChain userSecurityFilterChain(HttpSecurity http){
+        //enable this security chain for the following paths
         http.securityMatcher("/signup/**");
         http.csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests(authz -> {

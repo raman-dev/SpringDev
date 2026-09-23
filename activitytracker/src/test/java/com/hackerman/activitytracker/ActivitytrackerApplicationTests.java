@@ -253,7 +253,7 @@ class ActivitytrackerApplicationTests {
 		final String uri = "/signup/create";
 		ResponseEntity responseEntity = restTemplate.postForEntity(uri,userCreateDTO,ResponseEntity.class);
 
-		assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
+		assertEquals(HttpStatus.CREATED,responseEntity.getStatusCode());
 	}
 
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){

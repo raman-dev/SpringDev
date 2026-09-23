@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriBuilderFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,39 +49,16 @@ public class ActivityRestController {
         return activity;
     }
 
-//    @PostMapping("/create-dto")
-//    public ResponseEntity createActivityDto(@Valid @RequestBody ActivityInputDTO activityInputDTO, BindingResult bindingResult){
-//        if (bindingResult.hasErrors()){
-//            bindingResult.getAllErrors().forEach(x -> System.out.println(x));
-//            return ResponseEntity.badRequest().build();
-//        }
-//        Activity activity = new Activity(activityInputDTO.getName(),activityInputDTO.getStartTimeStamp(),activityInputDTO.getEndTimeStamp());
-//        return ResponseEntity.ok().body(activity);
-//    }
-
     @PostMapping("/create/dto")
     public ResponseEntity createActivityDtoWithDatetime(@Valid @RequestBody ActivityInputDTO activityInputDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             bindingResult.getAllErrors().forEach(x -> System.out.println(x));
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok().body(activityInputDTO);
+
+        return ResponseEntity.created(null).body(activityInputDTO);
     }
 
-    @PostMapping("/signup/create")
-    public ResponseEntity createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult){
-        if (bindingResult.hasErrors()){
-            bindingResult.getAllErrors().forEach((e) -> {System.out.println(e);});
-            return ResponseEntity.badRequest().build();
-        }
-        //create user object with repository
-        Optional<MyUser> alreadyExists = userRepository.findByEmail(userCreateDTO.getEmail());
-        if (alreadyExists.isPresent()){
-            return ResponseEntity.badRequest().body(List.of(new String[]{"User with this email already exists"}));
-        }
-        MyUser newUser = new MyUser(userCreateDTO.getEmail(),userCreateDTO.getPassword());
-        userRepository.save(newUser);
-        return ResponseEntity.ok().build();
-    }
+
 
 }
