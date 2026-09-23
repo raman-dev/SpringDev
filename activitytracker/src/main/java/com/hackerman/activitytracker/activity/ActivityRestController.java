@@ -73,8 +73,8 @@ public class ActivityRestController {
             return ResponseEntity.badRequest().build();
         }
         //create user object with repository
-        MyUser alreadyExists = userRepository.findByEmail(userCreateDTO.getEmail());
-        if (alreadyExists != null){
+        Optional<MyUser> alreadyExists = userRepository.findByEmail(userCreateDTO.getEmail());
+        if (alreadyExists.isPresent()){
             return ResponseEntity.badRequest().body(List.of(new String[]{"User with this email already exists"}));
         }
         MyUser newUser = new MyUser(userCreateDTO.getEmail(),userCreateDTO.getPassword());

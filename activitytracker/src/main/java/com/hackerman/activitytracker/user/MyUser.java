@@ -23,9 +23,6 @@ public class MyUser {
     @Size(min=6,max=128)
     private String password;
 
-//    @Column(name="roles")
-//    private List<String> roles;
-
     public MyUser(String email, String password) {
         this.email = email;
         this.password = password;
