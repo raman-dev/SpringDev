@@ -3,6 +3,8 @@ package com.hackerman.activitytracker.user;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -22,6 +24,8 @@ public class MyUser {
     @Column(name="password")
     @Size(min=6,max=128)
     private String password;
+
+    public MyUser(){};
 
     public MyUser(String email, String password) {
         this.email = email;
@@ -43,4 +47,6 @@ public class MyUser {
     public void setPassword(String password) {
         this.password = password;
     }
+
+
 }

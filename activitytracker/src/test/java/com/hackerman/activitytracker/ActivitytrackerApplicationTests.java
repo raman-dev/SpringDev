@@ -44,6 +44,11 @@ class ActivitytrackerApplicationTests {
 	static final LocalTime endTime = LocalTime.of(17,26);
 	static final TimeZone timeZone = TimeZone.getDefault();
 
+	static final String email = "user@example.com";
+	static final String password = "password";
+	static final String matchingPassword = "password";
+
+
 	@Test
 	@Disabled
 	public void testPostActivity(){
@@ -222,9 +227,6 @@ class ActivitytrackerApplicationTests {
 
 	@Test
 	public void testUserCreateDTO(){
-		final String email = "raman@examlpe.com";
-		final String password = "password";
-		final String matchingPassword = "password";
 		UserCreateDTO userCreateDTO = new UserCreateDTO(email,password,matchingPassword);
 
 		assertEquals(email,userCreateDTO.getEmail());
@@ -234,8 +236,6 @@ class ActivitytrackerApplicationTests {
 
 	@Test
 	public void testUserCreate(){
-		final String email = "raman@example.com";
-		final String password = "password";
 		MyUser user = new MyUser(email,password);
 
 		assertEquals(email,user.getEmail());
@@ -244,16 +244,16 @@ class ActivitytrackerApplicationTests {
 
 
 	@Test void testUserCreateApiWithDB(){
-
-		final String email = "raman@example.com";
-		final String password = "password";
-		final String matchingPassword = "password";
 		UserCreateDTO userCreateDTO = new UserCreateDTO(email,password,matchingPassword);
 
 		final String uri = "/signup/create";
-		ResponseEntity responseEntity = restTemplate.postForEntity(uri,userCreateDTO,ResponseEntity.class);
+		ResponseEntity responseEntity = restTemplate.postForEntity(uri,userCreateDTO, MyUser.class);
 
-		assertEquals(HttpStatus.CREATED,responseEntity.getStatusCode());
+		assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
+
+		MyUser user = (MyUser) responseEntity.getBody();
+		System.out.println(user.getEmail());
+		System.out.println(user.getPassword());//encrypted password
 	}
 
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){

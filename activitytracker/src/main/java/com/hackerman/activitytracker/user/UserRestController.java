@@ -36,9 +36,11 @@ public class UserRestController {
         if (alreadyExists.isPresent()){
             return ResponseEntity.badRequest().body(List.of(new String[]{"User with this email already exists"}));
         }
-        MyUser newUser = new MyUser(userCreateDTO.getEmail(),userCreateDTO.getPassword());
+        PasswordEncoder passwordEncoder = bCryptPasswordEncoder();
+        MyUser newUser = new MyUser(userCreateDTO.getEmail(),
+                passwordEncoder.encode(userCreateDTO.getPassword()));
         userRepository.save(newUser);
-        return ResponseEntity.created(null).build();
+        return ResponseEntity.ok().body(newUser);
     }
 
     @PostMapping("/login")
@@ -50,7 +52,7 @@ public class UserRestController {
 
     @Bean
     PasswordEncoder bCryptPasswordEncoder(){
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(10);
     }
 
 }
