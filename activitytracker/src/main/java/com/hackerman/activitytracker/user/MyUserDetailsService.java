@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Primary
+@Component
 public class MyUserDetailsService implements UserDetailsService {
 
     private UserRepository userRepository;
@@ -21,11 +21,14 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         //check username exists
+        System.out.println("loadUserByUsername: " + username);
         Optional<MyUser> userEntity = userRepository.findByEmail(username);
         if (!userEntity.isPresent()){
             throw UsernameNotFoundException.fromUsername(username);
         }
+
         MyUser user = userEntity.get();
+        System.out.println("username: "+user.getEmail() + "\npassword:"+user.getPassword());
         return  User.withUsername(user.getEmail())
                 .password(user.getPassword())
                 .roles("USER")

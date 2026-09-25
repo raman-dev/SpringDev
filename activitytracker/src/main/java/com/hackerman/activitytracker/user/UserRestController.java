@@ -3,13 +3,8 @@ package com.hackerman.activitytracker.user;
 import jakarta.validation.Valid;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,24 +26,23 @@ public class UserRestController {
             bindingResult.getAllErrors().forEach((e) -> {System.out.println(e);});
             return ResponseEntity.badRequest().build();
         }
+
         //create user object with repository
         Optional<MyUser> alreadyExists = userRepository.findByEmail(userCreateDTO.getEmail());
         if (alreadyExists.isPresent()){
             return ResponseEntity.badRequest().body(List.of(new String[]{"User with this email already exists"}));
         }
+
+        if (!userCreateDTO.getPassword().equals(userCreateDTO.getMatchingPassword())){
+            return ResponseEntity.badRequest().body(List.of(new String[]{"Passwords do not match."}));
+        }
+
         PasswordEncoder passwordEncoder = bCryptPasswordEncoder();
         MyUser newUser = new MyUser(userCreateDTO.getEmail(),
                 passwordEncoder.encode(userCreateDTO.getPassword()));
         userRepository.save(newUser);
-        return ResponseEntity.ok().body(newUser);
+        return ResponseEntity.ok().body(List.of(new String[]{"User created with email: "+newUser.getEmail()}));
     }
-
-    @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginRequest loginRequest){
-        return null;
-    }
-
-    public record LoginRequest(String username,String password){};
 
     @Bean
     PasswordEncoder bCryptPasswordEncoder(){

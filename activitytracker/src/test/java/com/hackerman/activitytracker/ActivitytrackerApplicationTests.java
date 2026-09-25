@@ -6,14 +6,22 @@ import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
 import com.hackerman.activitytracker.user.MyUser;
+import org.apache.coyote.Response;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.SpringBootMockMvcBuilderCustomizer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -27,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest(classes = {ActivitytrackerApplication.class},
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
+@AutoConfigureMockMvc
 class ActivitytrackerApplicationTests {
 
 	@Autowired
@@ -44,10 +53,17 @@ class ActivitytrackerApplicationTests {
 	static final LocalTime endTime = LocalTime.of(17,26);
 	static final TimeZone timeZone = TimeZone.getDefault();
 
-	static final String email = "user@example.com";
+	static final String unusedEmail = "user@example.com";
+	static final String userEmail = "raman@example.com";
+
 	static final String password = "password";
 	static final String matchingPassword = "password";
 
+	@Autowired
+	private WebApplicationContext webApplicationContext;
+
+	@Autowired
+	private MockMvc mvc;
 
 	@Test
 	@Disabled
@@ -227,33 +243,48 @@ class ActivitytrackerApplicationTests {
 
 	@Test
 	public void testUserCreateDTO(){
-		UserCreateDTO userCreateDTO = new UserCreateDTO(email,password,matchingPassword);
+		UserCreateDTO userCreateDTO = new UserCreateDTO(unusedEmail,password,matchingPassword);
 
-		assertEquals(email,userCreateDTO.getEmail());
+		assertEquals(unusedEmail,userCreateDTO.getEmail());
 		assertEquals(password,userCreateDTO.getPassword());
 		assertEquals(matchingPassword,userCreateDTO.getMatchingPassword());
 	}
 
 	@Test
 	public void testUserCreate(){
-		MyUser user = new MyUser(email,password);
+		MyUser user = new MyUser(unusedEmail,password);
 
-		assertEquals(email,user.getEmail());
+		assertEquals(unusedEmail,user.getEmail());
 		assertEquals(password,user.getPassword());
 	}
 
 
-	@Test void testUserCreateApiWithDB(){
-		UserCreateDTO userCreateDTO = new UserCreateDTO(email,password,matchingPassword);
+	@Test
+	public void testUserCreateApiWithDB(){
+		UserCreateDTO userCreateDTO = new UserCreateDTO(unusedEmail,password,matchingPassword);
 
 		final String uri = "/signup/create";
-		ResponseEntity responseEntity = restTemplate.postForEntity(uri,userCreateDTO, MyUser.class);
+		ResponseEntity<String[]> responseEntity = restTemplate
+				.postForEntity(uri,userCreateDTO, String[].class);
 
 		assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
+		//read the string message
+		String[] messages = responseEntity.getBody();
 
-		MyUser user = (MyUser) responseEntity.getBody();
-		System.out.println(user.getEmail());
-		System.out.println(user.getPassword());//encrypted password
+		System.out.println("------START RESPONSE--------");
+		for (int i = 0; i < messages.length; i++) {
+			System.out.println(messages[i]);
+		}
+		System.out.println("------END RESPONSE----------");
+	}
+
+
+	@Test
+	public void testUserLogin(){
+		//test user login how?
+		final String url = "/login";
+
+//		ResponseEntity responseEntity = restTemplate.postForEntity(url,loginRequest,ResponseEntity.class);
 	}
 
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){
