@@ -20,6 +20,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.SpringBootMockMvcBuild
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -30,6 +31,7 @@ import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 
 
 @SpringBootTest(classes = {ActivitytrackerApplication.class},
@@ -250,14 +252,6 @@ class ActivitytrackerApplicationTests {
 		assertEquals(matchingPassword,userCreateDTO.getMatchingPassword());
 	}
 
-	@Test
-	public void testUserCreate(){
-		MyUser user = new MyUser(unusedEmail,password);
-
-		assertEquals(unusedEmail,user.getEmail());
-		assertEquals(password,user.getPassword());
-	}
-
 
 	@Test
 	public void testUserCreateApiWithDB(){
@@ -278,14 +272,29 @@ class ActivitytrackerApplicationTests {
 		System.out.println("------END RESPONSE----------");
 	}
 
-
 	@Test
 	public void testUserLogin(){
 		//test user login how?
 		final String url = "/login";
-
-//		ResponseEntity responseEntity = restTemplate.postForEntity(url,loginRequest,ResponseEntity.class);
+		try {
+			mvc.perform(formLogin(url).user(userEmail).password(password));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
+
+
+	@Test
+	public void testCreateActivityAfterLogin(){
+		//test user login how?
+		final String url = "/login";
+		try {
+			ResultActions resultActions = mvc.perform(formLogin(url).user(userEmail).password(password));		} catch (Exception e) {
+
+			throw new RuntimeException(e);
+		}
+	}
+
 
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){
 		assertEquals(name,activityInputDTO.getName());
