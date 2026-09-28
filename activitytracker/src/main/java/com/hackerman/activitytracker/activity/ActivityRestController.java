@@ -10,9 +10,12 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
+import java.net.URI;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,20 +46,24 @@ public class ActivityRestController {
         return activityRepository.findById(id);
     }
 
-    @PostMapping("/create")
-    public Activity createActivity(@RequestBody Activity activity){
-        activityRepository.save(activity);
-        return activity;
-    }
-
-    @PostMapping("/create/dto")
+    @PostMapping("/create/activity")
     public ResponseEntity createActivityDtoWithDatetime(@Valid @RequestBody ActivityInputDTO activityInputDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             bindingResult.getAllErrors().forEach(x -> System.out.println(x));
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.created(null).body(activityInputDTO);
+        Activity activity = new Activity(activityInputDTO.getName(),
+                activityInputDTO.getStartTimeIso8601(),
+                activityInputDTO.getEndTimeIso8601());
+        var savedActivity = activityRepository.save(activity);
+        Long id = savedActivity.getEntityId();
+
+        URI location = ServletUriComponentsBuilder
+                .fromPath("/activity/{id}")
+                .buildAndExpand(id)
+                .toUri();
+        return ResponseEntity.created(location).body(activityInputDTO);
     }
 
 

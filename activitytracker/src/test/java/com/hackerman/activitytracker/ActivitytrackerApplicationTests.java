@@ -5,24 +5,20 @@ import com.hackerman.activitytracker.user.UserCreateDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
-import com.hackerman.activitytracker.user.MyUser;
-import org.apache.coyote.Response;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.SpringBootMockMvcBuilderCustomizer;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,6 +28,9 @@ import java.util.TimeZone;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringBootTest(classes = {ActivitytrackerApplication.class},
@@ -46,7 +45,7 @@ class ActivitytrackerApplicationTests {
 	@Autowired
 	private ActivityRepoContainer activityRepoContainer;
 
-	static final String name = "Programming";
+	static final String activityName = "Programming";
 	static final String startTimeStamp = "8am";
 	static final String endTimeStamp = "11am";
 
@@ -64,22 +63,26 @@ class ActivitytrackerApplicationTests {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
+	//THIS DOES NOT PERFORM END TO END TESTS NO ACTUALLY SERVER OR REQUEST IS SENT
 	@Autowired
 	private MockMvc mvc;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Test
 	@Disabled
 	public void testPostActivity(){
 
 		String url = "/create-activity";
-		Activity testActivity = new Activity(name,startTimeStamp,endTimeStamp);
+		Activity testActivity = new Activity(activityName,startTimeStamp,endTimeStamp);
 		ResponseEntity<Activity> responseEntity = restTemplate
 				.postForEntity(url,testActivity,Activity.class);
 
 		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Activity activity = responseEntity.getBody();
 
-		assertActivityFields(activity,name,startTimeStamp,endTimeStamp);
+		assertActivityFields(activity, activityName,startTimeStamp,endTimeStamp);
 	}
 
 	@Test
@@ -90,15 +93,15 @@ class ActivitytrackerApplicationTests {
 
 	@Test
 	public void testActivityCreation(){
-		Activity activity = new Activity(name,startTimeStamp,endTimeStamp);
+		Activity activity = new Activity(activityName,startTimeStamp,endTimeStamp);
 		System.out.println("Created:\n\t" + activity);
 
-		assertActivityFields(activity,name,startTimeStamp,endTimeStamp);
+		assertActivityFields(activity, activityName,startTimeStamp,endTimeStamp);
 	}
 
 	@Test
 	public void testActivityDatabaseCreationWithRepository(){
-		Activity testActivity = new Activity(name,startTimeStamp,endTimeStamp);
+		Activity testActivity = new Activity(activityName,startTimeStamp,endTimeStamp);
 		ActivityRepository activityRepository = activityRepoContainer.getRepository();
 		activityRepository.save(testActivity);
 
@@ -111,20 +114,20 @@ class ActivitytrackerApplicationTests {
 		assertActivityFieldsEqual(testActivity,savedActivity);
 	}
 
-	@Test
-	@Disabled
-	public void testActivityDbCreationWithPostRestMapping(){
-		String url="/create";
-		Activity testActivity = new Activity(name,startTimeStamp,endTimeStamp);
-		ResponseEntity<Activity> responseEntity = restTemplate
-				.postForEntity(url,testActivity,Activity.class);
-
-		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-		//check database
-		Activity dbActivity = activityRepoContainer.getRepository().findByName(testActivity.getName()).getFirst();
-
-		assertActivityFieldsEqual(testActivity,dbActivity);
-	}
+//	@Test
+//	@Disabled
+//	public void testActivityDbCreationWithPostRestMapping(){
+//		String url="/create";
+//		Activity testActivity = new Activity(name,startTimeStamp,endTimeStamp);
+//		ResponseEntity<Activity> responseEntity = restTemplate
+//				.postForEntity(url,testActivity,Activity.class);
+//
+//		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+//		//check database
+//		Activity dbActivity = activityRepoContainer.getRepository().findByName(testActivity.getName()).getFirst();
+//
+//		assertActivityFieldsEqual(testActivity,dbActivity);
+//	}
 
 	@Test
 	public void testGetUniqueActivityNamesFromDB(){
@@ -234,13 +237,8 @@ class ActivitytrackerApplicationTests {
 
 	@Test
 	public void testCreateActivityInputDTO(){
-		ActivityInputDTO activityInputDTO = new ActivityInputDTO(name,date,startTime,endTime,timeZone);
-		assertActivityInputDTOFields(activityInputDTO,name,date,startTime,endTime,timeZone);
-	}
-
-	@Test
-	public void testGetActivity(){
-//		ResponseEntity<Activity> responseEntity = restTemplate.getForEntity();
+		ActivityInputDTO activityInputDTO = new ActivityInputDTO(activityName,date,startTime,endTime,timeZone);
+		assertActivityInputDTOFields(activityInputDTO, activityName,date,startTime,endTime,timeZone);
 	}
 
 	@Test
@@ -283,18 +281,24 @@ class ActivitytrackerApplicationTests {
 		}
 	}
 
-
 	@Test
-	public void testCreateActivityAfterLogin(){
+	@WithMockUser(username=userEmail,password=password)
+	public void testCreateActivityAfterLogin() throws Exception {
 		//test user login how?
-		final String url = "/login";
-		try {
-			ResultActions resultActions = mvc.perform(formLogin(url).user(userEmail).password(password));		} catch (Exception e) {
+		final String uri = "/create/activity";
+		ActivityInputDTO activityInputDTO = new ActivityInputDTO(
+				activityName,
+				date, startTime,endTime,
+				timeZone);
+		mvc.perform(
+				post(uri)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(activityInputDTO))
+				)
+				.andExpect(status().isCreated())//CREATED 201
+				.andExpect(header().exists("Location"));//Location header is in results
 
-			throw new RuntimeException(e);
-		}
 	}
-
 
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){
 		assertEquals(name,activityInputDTO.getName());

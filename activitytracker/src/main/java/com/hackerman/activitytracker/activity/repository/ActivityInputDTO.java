@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.TimeZone;
 
 
@@ -34,6 +35,15 @@ public class ActivityInputDTO {
         this.startTime = startTime;
         this.endTime = endTime;
         this.timeZone = timeZone;
+    }
+
+
+    public String getStartTimeIso8601(){
+        return ZonedDateTime.of(getDate(),getStartTime(),getTimeZone().toZoneId()).toString();
+    }
+
+    public String getEndTimeIso8601(){
+        return ZonedDateTime.of(getDate(),getEndTime(),getTimeZone().toZoneId()).toString();
     }
 
     public TimeZone getTimeZone() {
