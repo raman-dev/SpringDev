@@ -3,11 +3,17 @@ package com.hackerman.activitytracker.activity.repository;
 import com.hackerman.activitytracker.activity.Activity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface ActivityRepository extends CrudRepository<Activity, Long> {
     public List<Activity> findByName(String name);
+
+    public List<ActivityDTO> findByOwnerId(Long ownerId);
+
+    @Query("SELECT DISTINCT curr.name FROM Activity curr WHERE curr.owner.id =:ownerId")
+    public List<String> findAllUniqueNamesForOwner(@Param("ownerId") Long ownerId);
 
     @Query("SELECT DISTINCT curr.name from Activity curr")
     public List<String> findAllUniqueNames();

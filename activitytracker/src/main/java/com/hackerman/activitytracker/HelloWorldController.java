@@ -23,7 +23,7 @@ public class HelloWorldController {
 
 //    @GetMapping("/get-activity")
     public Activity getActivity(){
-        return new Activity("Programming","8am","11am");
+        return new Activity("Programming","8am","11am",null );
     }
 
 

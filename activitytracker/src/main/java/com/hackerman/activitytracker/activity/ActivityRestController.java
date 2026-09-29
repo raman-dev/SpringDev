@@ -4,18 +4,17 @@ import com.hackerman.activitytracker.activity.repository.ActivityDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
 import com.hackerman.activitytracker.user.MyUser;
-import com.hackerman.activitytracker.user.UserCreateDTO;
 import com.hackerman.activitytracker.user.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriBuilder;
-import org.springframework.web.util.UriBuilderFactory;
 
 import java.net.URI;
-import java.time.ZonedDateTime;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,9 +35,20 @@ public class ActivityRestController {
         return activityRepository.findAllUniqueNames();
     }
 
+    @GetMapping("/get/activity/names/self")
+    public List<String> getMyActivityNames(Authentication authentication){
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        //guaranteed to exist since cannot create user without db entity
+        MyUser user = userRepository.findByEmail(userDetails.getUsername()).get();
+        return activityRepository.findAllUniqueNamesForOwner(user.getId());
+    }
+
     @GetMapping("/get/activity/all")
-    public List<ActivityDTO> getAllActivity(){
-        return activityRepository.findAllBy();
+    public List<ActivityDTO> getAllActivity(Authentication authentication){
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        //guaranteed to exist since cannot create user without db entity
+        MyUser user = userRepository.findByEmail(userDetails.getUsername()).get();
+        return activityRepository.findByOwnerId(user.getId());
     }
 
     @GetMapping("/get/activity/{id}")
@@ -55,7 +65,7 @@ public class ActivityRestController {
 
         Activity activity = new Activity(activityInputDTO.getName(),
                 activityInputDTO.getStartTimeIso8601(),
-                activityInputDTO.getEndTimeIso8601());
+                activityInputDTO.getEndTimeIso8601(),null );
         var savedActivity = activityRepository.save(activity);
         Long id = savedActivity.getEntityId();
 

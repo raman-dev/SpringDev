@@ -3,8 +3,6 @@ package com.hackerman.activitytracker.activity;
 import com.hackerman.activitytracker.user.MyUser;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name="activity")
 public class Activity {
@@ -25,7 +23,7 @@ public class Activity {
     private String endTimeStamp;
 
     @ManyToOne
-    @JoinColumn(name="id",referencedColumnName = "id")
+    @JoinColumn(name="owner_id",referencedColumnName = "id")
     //name -> name of column in activity table
     //referencedColumnName -> name of column in MyUser Table
     //jpa will pick up that MyUser is an entity
@@ -33,15 +31,18 @@ public class Activity {
 
     public Activity (){}
 
-    public Activity(String name, String startTimeStamp, String endTimeStamp) {
+    public Activity(String name, String startTimeStamp, String endTimeStamp, MyUser owner) {
         this.name = name;
         this.startTimeStamp = startTimeStamp;
         this.endTimeStamp = endTimeStamp;
+        this.owner = owner;
     }
 
     public MyUser getOwner() {
         return owner;
     }
+
+    public void setOwner(MyUser owner) { this.owner = owner; }
 
     public Long getEntityId(){
         return entityId;

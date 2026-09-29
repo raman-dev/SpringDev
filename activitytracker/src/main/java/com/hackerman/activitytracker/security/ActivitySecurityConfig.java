@@ -22,8 +22,10 @@ public class ActivitySecurityConfig {
         http.csrf((csrf) -> csrf.disable())
             .authorizeHttpRequests(authz -> {
                 authz
-                        .requestMatchers(HttpMethod.GET,"/get/*/*").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/get/*").permitAll()
+                        //anyone can read all activity names
+                        .requestMatchers(HttpMethod.GET,"/get/activity/names").permitAll()
+                        //user based
+                        .requestMatchers(HttpMethod.GET,"/get/**").authenticated()
                         .requestMatchers(HttpMethod.POST,"/create").hasRole("USER")
                         .anyRequest().authenticated();
             });
