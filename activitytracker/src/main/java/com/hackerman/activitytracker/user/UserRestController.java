@@ -21,12 +21,14 @@ public class UserRestController {
     
     private UserRepository userRepository;
 
-//    @Autowired
+    @Autowired
     private AuthenticationManager authenticationManager;
 
-    public UserRestController(UserRepository userRepository,AuthenticationManager authenticationManager) {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public UserRestController(UserRepository userRepository){
         this.userRepository = userRepository;
-        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/signup/create")
@@ -46,36 +48,33 @@ public class UserRestController {
             return ResponseEntity.badRequest().body(List.of(new String[]{"Passwords do not match."}));
         }
 
-        PasswordEncoder passwordEncoder = bCryptPasswordEncoder();
+//        PasswordEncoder passwordEncoder = bCryptPasswordEncoder();
         MyUser newUser = new MyUser(userCreateDTO.getEmail(),
                 passwordEncoder.encode(userCreateDTO.getPassword()));
         userRepository.save(newUser);
         return ResponseEntity.ok().body(List.of(new String[]{"User created with email: "+newUser.getEmail()}));
     }
 
+
+
     public record LoginRequest(@NotBlank  String username,@NotBlank String password){};
 
-    @PostMapping("/login")
+    @PostMapping("/api/login")
     public ResponseEntity<Void> loginFunction(@Valid @RequestBody LoginRequest loginRequest,BindingResult bindingResult){
 
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
                 loginRequest.username(),
                 loginRequest.password());
 
+
         Authentication authenticationResponse = authenticationManager.authenticate(authenticationRequest);
         if (authenticationResponse.isAuthenticated()){
             //return what redirect or logged in or populate securitycontextrepository?
 
-            return ResponseEntity.accepted().build();
+            return ResponseEntity.ok().build();
         }
 
         return ResponseEntity.badRequest().build();
-    }
-
-
-    @Bean
-    PasswordEncoder bCryptPasswordEncoder(){
-        return new BCryptPasswordEncoder(10);
     }
 
 }

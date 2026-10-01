@@ -10,6 +10,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -21,6 +22,7 @@ public class ActivitySecurityConfig {
     public SecurityFilterChain activityCrudFilterChain(HttpSecurity http){
         //enable this chain for only the following path
         http.securityMatchers((requestMatcherConfigurer -> {
+            requestMatcherConfigurer.requestMatchers("/api/**");
             requestMatcherConfigurer.requestMatchers("/get/**");
             requestMatcherConfigurer.requestMatchers("/create/**");
         }));
@@ -32,6 +34,7 @@ public class ActivitySecurityConfig {
                         //user based
                         .requestMatchers(HttpMethod.GET,"/get/**").authenticated()
                         .requestMatchers(HttpMethod.POST,"/create").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST,"/api/login").permitAll()
                         .anyRequest().authenticated();
             });
         http.httpBasic(Customizer.withDefaults());//http basic sends user and password with every request
@@ -44,16 +47,27 @@ public class ActivitySecurityConfig {
     public SecurityFilterChain userSecurityFilterChain(HttpSecurity http){
         //enable this security chain for the following paths
         http.securityMatchers(requestMatcherConfigurer -> {
+            requestMatcherConfigurer.requestMatchers("/home");
             requestMatcherConfigurer.requestMatchers("/signup/**");
             requestMatcherConfigurer.requestMatchers("/login/**");
         });
         http.csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests(authz -> {
-                    authz.requestMatchers(HttpMethod.POST,"/signup/create").permitAll()
-                         .requestMatchers(HttpMethod.POST,"/login").permitAll();
+                    authz
+                            .requestMatchers(HttpMethod.POST,"/signup/create").permitAll()
+                            .requestMatchers(HttpMethod.GET,"/home").authenticated();
                 });
-        http.formLogin(Customizer.withDefaults());
+        http.formLogin((form) -> {
+            form
+                    .defaultSuccessUrl("/home",true)
+                    .permitAll();
+        });
         return http.build();
+    }
+
+    @Bean
+    PasswordEncoder bCryptPasswordEncoder(){
+        return new BCryptPasswordEncoder(10);
     }
 
     @Bean
@@ -62,6 +76,7 @@ public class ActivitySecurityConfig {
         authenticationProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authenticationProvider);
     }
+
     //create a default user on boot
 //    @Bean
 //    UserDetailsService userDetailsService(){
