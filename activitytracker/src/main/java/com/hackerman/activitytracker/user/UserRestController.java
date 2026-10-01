@@ -1,8 +1,13 @@
 package com.hackerman.activitytracker.user;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
@@ -16,8 +21,12 @@ public class UserRestController {
     
     private UserRepository userRepository;
 
-    public UserRestController(UserRepository userRepository) {
+//    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    public UserRestController(UserRepository userRepository,AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/signup/create")
@@ -43,6 +52,26 @@ public class UserRestController {
         userRepository.save(newUser);
         return ResponseEntity.ok().body(List.of(new String[]{"User created with email: "+newUser.getEmail()}));
     }
+
+    public record LoginRequest(@NotBlank  String username,@NotBlank String password){};
+
+    @PostMapping("/login")
+    public ResponseEntity<Void> loginFunction(@Valid @RequestBody LoginRequest loginRequest,BindingResult bindingResult){
+
+        Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
+                loginRequest.username(),
+                loginRequest.password());
+
+        Authentication authenticationResponse = authenticationManager.authenticate(authenticationRequest);
+        if (authenticationResponse.isAuthenticated()){
+            //return what redirect or logged in or populate securitycontextrepository?
+
+            return ResponseEntity.accepted().build();
+        }
+
+        return ResponseEntity.badRequest().build();
+    }
+
 
     @Bean
     PasswordEncoder bCryptPasswordEncoder(){
