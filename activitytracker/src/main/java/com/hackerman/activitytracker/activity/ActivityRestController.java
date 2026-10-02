@@ -1,6 +1,6 @@
 package com.hackerman.activitytracker.activity;
 
-import com.hackerman.activitytracker.activity.repository.ActivityDTO;
+import com.hackerman.activitytracker.activity.repository.ActivityOutputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
 import com.hackerman.activitytracker.user.MyUser;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +43,7 @@ public class ActivityRestController {
     }
 
     @GetMapping("/get/activity/all")
-    public List<ActivityDTO> getAllActivity(Authentication authentication){
+    public List<ActivityOutputDTO> getAllActivity(Authentication authentication){
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         //guaranteed to exist since cannot create user without db entity
         MyUser user = userRepository.findByEmail(userDetails.getUsername()).get();
@@ -52,8 +51,8 @@ public class ActivityRestController {
     }
 
     @GetMapping("/get/activity/{id}")
-    public Optional<Activity> getActivity(@PathVariable Long id){
-        return activityRepository.findById(id);
+    public Optional<ActivityOutputDTO> getActivity(@PathVariable Long id){
+        return activityRepository.findByEntityId(id);
     }
 
     @PostMapping("/create/activity")

@@ -13,19 +13,26 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 @Configuration
 @EnableWebSecurity
 public class ActivitySecurityConfig {
 
     @Bean
-    public SecurityFilterChain activityCrudFilterChain(HttpSecurity http){
+    public SecurityFilterChain activityCrudFilterChain(HttpSecurity http,SecurityContextRepository securityContextRepository){
         //enable this chain for only the following path
         http.securityMatchers((requestMatcherConfigurer -> {
             requestMatcherConfigurer.requestMatchers("/api/**");
             requestMatcherConfigurer.requestMatchers("/get/**");
             requestMatcherConfigurer.requestMatchers("/create/**");
         }));
+
+        http.securityContext((securityContext) -> {
+            securityContext.securityContextRepository(securityContextRepository);
+        });
+
         http.csrf((csrf) -> csrf.disable())
             .authorizeHttpRequests(authz -> {
                 authz
@@ -75,6 +82,11 @@ public class ActivitySecurityConfig {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authenticationProvider);
+    }
+
+    @Bean
+    public SecurityContextRepository securityContextRepository(){
+        return new HttpSessionSecurityContextRepository();
     }
 
     //create a default user on boot

@@ -1,35 +1,41 @@
 package com.hackerman.activitytracker.user;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 public class UserRestController {
-    
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SecurityContextRepository securityContextRepository;
 
     @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    public UserRestController(UserRepository userRepository){
-        this.userRepository = userRepository;
-    }
 
     @PostMapping("/signup/create")
     public ResponseEntity createUser(@Valid @RequestBody UserCreateDTO userCreateDTO, BindingResult bindingResult){
@@ -48,33 +54,53 @@ public class UserRestController {
             return ResponseEntity.badRequest().body(List.of(new String[]{"Passwords do not match."}));
         }
 
-//        PasswordEncoder passwordEncoder = bCryptPasswordEncoder();
         MyUser newUser = new MyUser(userCreateDTO.getEmail(),
                 passwordEncoder.encode(userCreateDTO.getPassword()));
         userRepository.save(newUser);
-        return ResponseEntity.ok().body(List.of(new String[]{"User created with email: "+newUser.getEmail()}));
+        return ResponseEntity.ok().body(Map.of("message","User created with email: "+newUser.getEmail()));
     }
 
-
-
-    public record LoginRequest(@NotBlank  String username,@NotBlank String password){};
+    public record LoginData(
+            @NotBlank(message = "Username cannot be empty")
+            String username,
+            @NotBlank(message="Password cannot be empty")
+            String password){};
 
     @PostMapping("/api/login")
-    public ResponseEntity<Void> loginFunction(@Valid @RequestBody LoginRequest loginRequest,BindingResult bindingResult){
+    public ResponseEntity loginFunction(
+            @Valid @RequestBody LoginData loginData,
+            BindingResult bindingResult,
+            HttpServletRequest request, HttpServletResponse response){
 
-        Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
-                loginRequest.username(),
-                loginRequest.password());
-
-
-        Authentication authenticationResponse = authenticationManager.authenticate(authenticationRequest);
-        if (authenticationResponse.isAuthenticated()){
-            //return what redirect or logged in or populate securitycontextrepository?
-
-            return ResponseEntity.ok().build();
+        if (bindingResult.hasErrors()){
+            return ResponseEntity.badRequest().body(
+                    bindingResult.getAllErrors()
+                            .stream()
+                            .map(ObjectError::getDefaultMessage)
+                            .toList());
         }
 
-        return ResponseEntity.badRequest().build();
+        Authentication authenticationRequest = UsernamePasswordAuthenticationToken
+                .unauthenticated(
+                        loginData.username(),
+                        loginData.password());
+
+
+        Authentication authenticationResponse = authenticationManager
+                .authenticate(authenticationRequest);
+
+        if (authenticationResponse.isAuthenticated()){
+            //must populate securitycontextrepository manually
+            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+            securityContext.setAuthentication(authenticationResponse);
+            //static for thread
+            SecurityContextHolder.setContext(securityContext);
+            securityContextRepository.saveContext(securityContext,request,response);
+
+            return ResponseEntity.ok().body(List.of("success"));
+        }
+
+        return ResponseEntity.badRequest().body(List.of("Unknown error"));
     }
 
 }
