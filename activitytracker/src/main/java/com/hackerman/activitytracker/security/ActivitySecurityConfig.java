@@ -2,6 +2,7 @@ package com.hackerman.activitytracker.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -13,17 +14,21 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
 public class ActivitySecurityConfig {
 
     @Bean
+    @Order(1)
     public SecurityFilterChain activityCrudFilterChain(HttpSecurity http,SecurityContextRepository securityContextRepository){
         //enable this chain for only the following path
         http.securityMatchers((requestMatcherConfigurer -> {
+            requestMatcherConfigurer.requestMatchers("/logout");
             requestMatcherConfigurer.requestMatchers("/api/**");
             requestMatcherConfigurer.requestMatchers("/get/**");
             requestMatcherConfigurer.requestMatchers("/create/**");
@@ -42,8 +47,23 @@ public class ActivitySecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/get/**").authenticated()
                         .requestMatchers(HttpMethod.POST,"/create").hasRole("USER")
                         .requestMatchers(HttpMethod.POST,"/api/login").permitAll()
+//                        .requestMatchers(HttpMethod.GET,"/logout").permitAll()
                         .anyRequest().authenticated();
             });
+        http.logout((logout) -> {
+            logout
+                    .logoutUrl("/logout")
+                    .addLogoutHandler((request, response, authentication) -> {
+//                        System.out.println("***** LOGOUT HANDLER EXECUTED *****");
+//                        response.setHeader("Test-Header","Eh yo buddy");
+                        response.setHeader("Clear-Site-Data","\"*\"");
+                    })
+                    .addLogoutHandler(new HeaderWriterLogoutHandler(
+                            new ClearSiteDataHeaderWriter(
+                                    ClearSiteDataHeaderWriter.Directive.COOKIES
+                            ))
+                    );
+        });
         http.httpBasic(Customizer.withDefaults());//http basic sends user and password with every request
         http.formLogin(Customizer.withDefaults());//session based security, user pass once on success return session id use that every request
         return http.build();
@@ -51,6 +71,7 @@ public class ActivitySecurityConfig {
 
 
     @Bean
+    @Order(2)
     public SecurityFilterChain userSecurityFilterChain(HttpSecurity http){
         //enable this security chain for the following paths
         http.securityMatchers(requestMatcherConfigurer -> {
