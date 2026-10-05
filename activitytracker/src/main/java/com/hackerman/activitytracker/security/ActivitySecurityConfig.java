@@ -1,5 +1,9 @@
 package com.hackerman.activitytracker.security;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -10,14 +14,18 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -47,22 +55,25 @@ public class ActivitySecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/get/**").authenticated()
                         .requestMatchers(HttpMethod.POST,"/create").hasRole("USER")
                         .requestMatchers(HttpMethod.POST,"/api/login").permitAll()
-//                        .requestMatchers(HttpMethod.GET,"/logout").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/logout").permitAll()
                         .anyRequest().authenticated();
             });
         http.logout((logout) -> {
             logout
                     .logoutUrl("/logout")
                     .addLogoutHandler((request, response, authentication) -> {
-//                        System.out.println("***** LOGOUT HANDLER EXECUTED *****");
-//                        response.setHeader("Test-Header","Eh yo buddy");
-                        response.setHeader("Clear-Site-Data","\"*\"");
+                        System.out.println("***** LOGOUT HANDLER EXECUTED *****");
+                        response.setHeader("Test-Header","Eh yo buddy");
+//                        response.setHeader("Clear-Site-Data","\"*\"");
                     })
                     .addLogoutHandler(new HeaderWriterLogoutHandler(
                             new ClearSiteDataHeaderWriter(
-                                    ClearSiteDataHeaderWriter.Directive.COOKIES
+                                    ClearSiteDataHeaderWriter.Directive.ALL
                             ))
-                    );
+                    )
+                    .logoutSuccessHandler((request, response, authentication) -> {
+                        System.out.println("--------LOGOUT SUCCESS HANDLER RAN----------");
+                    });
         });
         http.httpBasic(Customizer.withDefaults());//http basic sends user and password with every request
         http.formLogin(Customizer.withDefaults());//session based security, user pass once on success return session id use that every request

@@ -5,18 +5,21 @@ import com.hackerman.activitytracker.user.UserCreateDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
-import org.junit.jupiter.api.Disabled;
+import com.hackerman.activitytracker.user.UserRestController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.databind.ObjectMapper;
 
@@ -39,26 +42,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ActivitytrackerApplicationTests {
 
+	private static final String API_LOGIN_URI = "/api/login";
+
 	@Autowired
 	private TestRestTemplate restTemplate;
 
 	@Autowired
 	private ActivityRepoContainer activityRepoContainer;
 
-	static final String activityName = "Programming";
-	static final String startTimeStamp = "8am";
-	static final String endTimeStamp = "11am";
+	private static final String activityName = "Programming";
+	private static final String startTimeStamp = "8am";
+	private static final String endTimeStamp = "11am";
 
-	static final LocalDate date = LocalDate.of(2026,9,15);
-	static final LocalTime startTime = LocalTime.of(16,26);
-	static final LocalTime endTime = LocalTime.of(17,26);
-	static final TimeZone timeZone = TimeZone.getDefault();
+	private static final LocalDate date = LocalDate.of(2026,9,15);
+	private static final LocalTime startTime = LocalTime.of(16,26);
+	private static final LocalTime endTime = LocalTime.of(17,26);
+	private static final TimeZone timeZone = TimeZone.getDefault();
 
-	static final String unusedEmail = "user@example.com";
-	static final String userEmail = "raman@example.com";
+	private static final String unusedEmail = "user@example.com";
+	private static final String userEmail = "raman@example.com";
 
-	static final String password = "password";
-	static final String matchingPassword = "password";
+	private static final String userPassword = "password";
+	private static final String matchingPassword = "password";
+	
+	private static final String SERVER_URL = "http://localhost:2020";
+	private static final String GET_ACTIVITY_SECURED = "/get/activity/90";
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
@@ -243,17 +251,17 @@ class ActivitytrackerApplicationTests {
 
 	@Test
 	public void testUserCreateDTO(){
-		UserCreateDTO userCreateDTO = new UserCreateDTO(unusedEmail,password,matchingPassword);
+		UserCreateDTO userCreateDTO = new UserCreateDTO(unusedEmail, userPassword,matchingPassword);
 
 		assertEquals(unusedEmail,userCreateDTO.getEmail());
-		assertEquals(password,userCreateDTO.getPassword());
+		assertEquals(userPassword,userCreateDTO.getPassword());
 		assertEquals(matchingPassword,userCreateDTO.getMatchingPassword());
 	}
 
 
 	@Test
 	public void testUserCreateApiWithDB(){
-		UserCreateDTO userCreateDTO = new UserCreateDTO(unusedEmail,password,matchingPassword);
+		UserCreateDTO userCreateDTO = new UserCreateDTO(unusedEmail, userPassword,matchingPassword);
 
 		final String uri = "/signup/create";
 		ResponseEntity<String[]> responseEntity = restTemplate
@@ -275,14 +283,14 @@ class ActivitytrackerApplicationTests {
 		//test user login how?
 		final String url = "/login";
 		try {
-			mvc.perform(formLogin(url).user(userEmail).password(password));
+			mvc.perform(formLogin(url).user(userEmail).password(userPassword));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Test
-	@WithMockUser(username=userEmail,password=password)
+	@WithMockUser(username=userEmail,password= userPassword)
 	public void testCreateActivityAfterLogin() throws Exception {
 		//test user login how?
 		final String uri = "/create/activity";
@@ -298,6 +306,45 @@ class ActivitytrackerApplicationTests {
 				.andExpect(status().isCreated())//CREATED 201
 				.andExpect(header().exists("Location"));//Location header is in results
 
+	}
+
+
+	//use to map response body to activity type shit
+	record ActivityOut (Long entityId,String name,String startTimeStamp,String endTimeStamp){};
+
+	@Test 
+	public void loginAndGetActivity(){
+		RestTestClient client = RestTestClient.bindToServer().baseUrl(SERVER_URL).build();
+		EntityExchangeResult<Void> loginResponse = client
+				.post()
+				.uri(API_LOGIN_URI)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(objectMapper.writeValueAsString(new UserRestController.LoginData(
+						userEmail, userPassword))
+				).exchange()
+				.returnResult(Void.class);
+
+		HttpHeaders headers = loginResponse.getResponseHeaders();
+		assertThat(headers.isEmpty()).isEqualTo(false);
+
+		String sessionCookie = headers.get(HttpHeaders.SET_COOKIE).getFirst();
+		System.out.println("SESSION_COOKIE: "+sessionCookie);
+		assertThat(sessionCookie.contains("JSESSIONID=")).isEqualTo(true);
+
+		EntityExchangeResult<ActivityOut> getResponse = client
+				.get()
+				.uri(GET_ACTIVITY_SECURED)
+				.header(HttpHeaders.COOKIE,sessionCookie)
+				.exchange()
+				.expectStatus().isOk()
+				.returnResult(ActivityOut.class);
+//				.returnResult(ActivityOutputDTO.class);
+
+		ActivityOut activityOut = getResponse.getResponseBody();
+		assertThat(activityOut).isNotEqualTo(null);
+
+		System.out.println("---------RECEIVED-------");
+		System.out.println(activityOut);
 	}
 
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){
