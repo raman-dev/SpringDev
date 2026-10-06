@@ -10,4 +10,5 @@ public class ActivityTemplateController {
     public String home(){
         return "home";//apparently this returns a template with filename home.html
     }
+
 }
