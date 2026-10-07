@@ -31,7 +31,7 @@ public class MyUserDetailsService implements UserDetailsService {
         }
 
         MyUser user = userEntity.get();
-        System.out.println("username: "+user.getEmail() + "\npassword:"+user.getPassword());
+//        System.out.println("username: "+user.getEmail() + "\npassword:"+user.getPassword());
         return  User.withUsername(user.getEmail())
                 .password(user.getPassword())
                 .roles("USER")

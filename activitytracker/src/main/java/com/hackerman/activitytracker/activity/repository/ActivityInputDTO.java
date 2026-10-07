@@ -1,5 +1,6 @@
 package com.hackerman.activitytracker.activity.repository;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -19,9 +20,11 @@ public class ActivityInputDTO {
     private LocalDate date;
 
     @NotNull
+    @JsonFormat(pattern="HH:mm")
     private LocalTime startTime;
 
     @NotNull
+    @JsonFormat(pattern="HH:mm")
     private LocalTime endTime;
 
     @NotNull

@@ -64,7 +64,7 @@ public class ActivityRestController {
 
         Activity activity = new Activity(activityInputDTO.getName(),
                 activityInputDTO.getStartTimeIso8601(),
-                activityInputDTO.getEndTimeIso8601(),null );
+                activityInputDTO.getEndTimeIso8601(),null);
         var savedActivity = activityRepository.save(activity);
         Long id = savedActivity.getEntityId();
 

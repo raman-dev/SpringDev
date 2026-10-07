@@ -54,6 +54,7 @@ public class ActivitySecurityConfig {
                         //user based
                         .requestMatchers(HttpMethod.GET,"/get/**").authenticated()
                         .requestMatchers(HttpMethod.POST,"/create").hasRole("USER")
+
                         .requestMatchers(HttpMethod.POST,"/api/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/logout").permitAll()
                         .anyRequest().authenticated();
@@ -87,13 +88,13 @@ public class ActivitySecurityConfig {
         //enable this security chain for the following paths
         http.securityMatchers(requestMatcherConfigurer -> {
             requestMatcherConfigurer.requestMatchers("/home");
-            requestMatcherConfigurer.requestMatchers("/signup/**");
+            requestMatcherConfigurer.requestMatchers("/signup");
             requestMatcherConfigurer.requestMatchers("/login/**");
         });
         http.csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests(authz -> {
                     authz
-                            .requestMatchers(HttpMethod.POST,"/signup/create").permitAll()
+                            .requestMatchers(HttpMethod.POST,"/signup").permitAll()
                             .requestMatchers(HttpMethod.GET,"/home").authenticated();
                 });
         http.formLogin((form) -> {

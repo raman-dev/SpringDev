@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.test.web.servlet.client.ExchangeResult;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.databind.ObjectMapper;
@@ -26,6 +27,8 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -212,37 +215,6 @@ class ActivitytrackerApplicationTests {
 //	}
 
 
-//	@Test
-//	public void testPostActivityDtoWithDatetime(){
-//
-//		String url="/create-dto-datetime";
-//
-//		ActivityInputDTO testActivityInputDto = new ActivityInputDTO(
-//				name,
-//				startTimeStamp,
-//				endTimeStamp,
-//				date,
-//				time
-//		);
-//
-//		ResponseEntity<ActivityInputDTO> responseEntity = restTemplate
-//				.postForEntity(
-//						url,//post url
-//						testActivityInputDto,//request body arg
-//						ActivityInputDTO.class);//response body type
-//
-//		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-//
-//		ActivityInputDTO activityDTO = responseEntity.getBody();
-//		assertThat(activityDTO).isNotEqualTo(null);
-//
-//
-//		assertEquals(date,activityDTO.getDate());
-//		assertEquals(time,activityDTO.getTime());
-//
-//	}
-
-
 	@Test
 	public void testCreateActivityInputDTO(){
 		ActivityInputDTO activityInputDTO = new ActivityInputDTO(activityName,date,startTime,endTime,timeZone);
@@ -260,26 +232,22 @@ class ActivitytrackerApplicationTests {
 
 
 	@Test
-	public void testUserCreateApiWithDB(){
+	public void signupAndCreateUserApiTest(){
 		UserCreateDTO userCreateDTO = new UserCreateDTO(unusedEmail, userPassword,matchingPassword);
+		final String uri = "/signup";
 
-		final String uri = "/signup/create";
-		ResponseEntity<String[]> responseEntity = restTemplate
-				.postForEntity(uri,userCreateDTO, String[].class);
-
+		ResponseEntity responseEntity = restTemplate
+				.postForEntity(uri,userCreateDTO,Object.class);
 		assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
 		//read the string message
-		String[] messages = responseEntity.getBody();
-
 		System.out.println("------START RESPONSE--------");
-		for (int i = 0; i < messages.length; i++) {
-			System.out.println(messages[i]);
-		}
+		Map<String,String> map = (Map<String, String>) responseEntity.getBody();
+		map.forEach((k,v) -> System.out.println(k+":\n\t"+ v));
 		System.out.println("------END RESPONSE----------");
 	}
 
 	@Test
-	public void testUserLogin(){
+	public void formLoginTest(){
 		//test user login how?
 		final String url = "/login";
 		try {
@@ -290,8 +258,8 @@ class ActivitytrackerApplicationTests {
 	}
 
 	@Test
-	@WithMockUser(username=userEmail,password= userPassword)
-	public void testCreateActivityAfterLogin() throws Exception {
+	@WithMockUser(username=userEmail,password=userPassword)
+	public void mockUserCreateActivityTest() throws Exception {
 		//test user login how?
 		final String uri = "/create/activity";
 		ActivityInputDTO activityInputDTO = new ActivityInputDTO(
@@ -305,7 +273,6 @@ class ActivitytrackerApplicationTests {
 				)
 				.andExpect(status().isCreated())//CREATED 201
 				.andExpect(header().exists("Location"));//Location header is in results
-
 	}
 
 
@@ -315,14 +282,14 @@ class ActivitytrackerApplicationTests {
 	@Test 
 	public void loginAndGetActivity(){
 		RestTestClient client = RestTestClient.bindToServer().baseUrl(SERVER_URL).build();
-		EntityExchangeResult<Void> loginResponse = client
+		ExchangeResult loginResponse = client
 				.post()
 				.uri(API_LOGIN_URI)
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(objectMapper.writeValueAsString(new UserRestController.LoginData(
 						userEmail, userPassword))
 				).exchange()
-				.returnResult(Void.class);
+				.returnResult();
 
 		HttpHeaders headers = loginResponse.getResponseHeaders();
 		assertThat(headers.isEmpty()).isEqualTo(false);
@@ -330,6 +297,13 @@ class ActivitytrackerApplicationTests {
 		String sessionCookie = headers.get(HttpHeaders.SET_COOKIE).getFirst();
 		System.out.println("SESSION_COOKIE: "+sessionCookie);
 		assertThat(sessionCookie.contains("JSESSIONID=")).isEqualTo(true);
+
+
+		System.out.println("bodyContent => "+ new String(loginResponse.getRequestBodyContent()));
+
+//		System.out.println("------START RESPONSE--------");
+//		map.forEach((k,v) -> System.out.println(k+":\n\t"+ v));
+//		System.out.println("------END RESPONSE----------");
 
 		EntityExchangeResult<ActivityOut> getResponse = client
 				.get()
