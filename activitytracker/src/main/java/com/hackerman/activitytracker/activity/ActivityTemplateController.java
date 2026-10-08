@@ -11,5 +11,8 @@ public class ActivityTemplateController {
         return "home";//apparently this returns a template with filename home.html
     }
 
-
+    @GetMapping("/")
+    public String index(){
+        return "index";
+    }
 }

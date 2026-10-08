@@ -6,6 +6,7 @@ import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
 import com.hackerman.activitytracker.user.UserRestController;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -282,14 +283,14 @@ class ActivitytrackerApplicationTests {
 	@Test 
 	public void loginAndGetActivity(){
 		RestTestClient client = RestTestClient.bindToServer().baseUrl(SERVER_URL).build();
-		ExchangeResult loginResponse = client
+		EntityExchangeResult<LinkedHashMap> loginResponse = client
 				.post()
 				.uri(API_LOGIN_URI)
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(objectMapper.writeValueAsString(new UserRestController.LoginData(
 						userEmail, userPassword))
 				).exchange()
-				.returnResult();
+				.returnResult(LinkedHashMap.class);
 
 		HttpHeaders headers = loginResponse.getResponseHeaders();
 		assertThat(headers.isEmpty()).isEqualTo(false);
@@ -299,11 +300,10 @@ class ActivitytrackerApplicationTests {
 		assertThat(sessionCookie.contains("JSESSIONID=")).isEqualTo(true);
 
 
-		System.out.println("bodyContent => "+ new String(loginResponse.getRequestBodyContent()));
-
-//		System.out.println("------START RESPONSE--------");
-//		map.forEach((k,v) -> System.out.println(k+":\n\t"+ v));
-//		System.out.println("------END RESPONSE----------");
+		LinkedHashMap map = loginResponse.getResponseBody();
+		System.out.println("\n------START RESPONSE--------");
+		map.forEach((k,v) -> System.out.println(k+":\n\t"+ v));
+		System.out.println("------END RESPONSE----------");
 
 		EntityExchangeResult<ActivityOut> getResponse = client
 				.get()
@@ -317,8 +317,9 @@ class ActivitytrackerApplicationTests {
 		ActivityOut activityOut = getResponse.getResponseBody();
 		assertThat(activityOut).isNotEqualTo(null);
 
-		System.out.println("---------RECEIVED-------");
+		System.out.println("\n------START RESPONSE--------");
 		System.out.println(activityOut);
+		System.out.println("------END RESPONSE----------");
 	}
 
 	public void assertActivityInputDTOFields(ActivityInputDTO activityInputDTO,String name,LocalDate date,LocalTime a,LocalTime b,TimeZone timeZone){
