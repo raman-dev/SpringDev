@@ -15,6 +15,9 @@ public interface ActivityRepository extends CrudRepository<Activity, Long> {
 
     public Optional<ActivityOutputDTO> findByEntityId(Long id);
 
+    @Query("SELECT curr FROM Activity curr WHERE  curr.owner.id=:ownerId AND curr.id=:id")
+    public Optional<ActivityOutputDTO> findByEntityId(@Param("ownerId") Long ownerId,@Param("id") Long id);
+
     @Query("SELECT DISTINCT curr.name FROM Activity curr WHERE curr.owner.id =:ownerId")
     public List<String> findAllUniqueNamesForOwner(@Param("ownerId") Long ownerId);
 

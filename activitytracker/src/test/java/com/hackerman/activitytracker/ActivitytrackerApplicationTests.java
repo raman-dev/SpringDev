@@ -6,7 +6,6 @@ import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepoContainer;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
 import com.hackerman.activitytracker.user.UserRestController;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -20,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.EntityExchangeResult;
-import org.springframework.test.web.servlet.client.ExchangeResult;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.databind.ObjectMapper;
@@ -70,7 +68,8 @@ class ActivitytrackerApplicationTests {
 	private static final String matchingPassword = "password";
 	
 	private static final String SERVER_URL = "http://localhost:2020";
-	private static final String GET_ACTIVITY_SECURED = "/get/activity/90";
+	private static final String GET_ACTIVITY_BY_ID_OWNED_BY_USER = "/get/activity/90";
+	private static final String GET_ACTIVITY_BY_ID_NOT_OWNED_BY_USER = "/get/activity/93";
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
@@ -299,7 +298,6 @@ class ActivitytrackerApplicationTests {
 		System.out.println("SESSION_COOKIE: "+sessionCookie);
 		assertThat(sessionCookie.contains("JSESSIONID=")).isEqualTo(true);
 
-
 		LinkedHashMap map = loginResponse.getResponseBody();
 		System.out.println("\n------START RESPONSE--------");
 		map.forEach((k,v) -> System.out.println(k+":\n\t"+ v));
@@ -307,12 +305,11 @@ class ActivitytrackerApplicationTests {
 
 		EntityExchangeResult<ActivityOut> getResponse = client
 				.get()
-				.uri(GET_ACTIVITY_SECURED)
+				.uri(GET_ACTIVITY_BY_ID_OWNED_BY_USER)
 				.header(HttpHeaders.COOKIE,sessionCookie)
 				.exchange()
 				.expectStatus().isOk()
-				.returnResult(ActivityOut.class);
-//				.returnResult(ActivityOutputDTO.class);
+				.returnResult(ActivityOut.class);//objectmapper will map the json to this pojo
 
 		ActivityOut activityOut = getResponse.getResponseBody();
 		assertThat(activityOut).isNotEqualTo(null);

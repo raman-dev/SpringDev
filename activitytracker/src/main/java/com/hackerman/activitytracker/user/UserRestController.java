@@ -11,14 +11,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,40 +104,5 @@ public class UserRestController {
         return ResponseEntity.badRequest().body(List.of("Unknown error"));
     }
 
-    class UserOutputDTO {
-        String username;
-        String email;
 
-        public UserOutputDTO(String username, String email) {
-            this.username = username;
-            this.email = email;
-        }
-
-        public UserOutputDTO() {
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        @Override
-        public String toString() {
-            return "UserOutputDTO{" +
-                    "username='" + username + '\'' +
-                    ", email='" + email + '\'' +
-                    '}';
-        }
-    }
 }

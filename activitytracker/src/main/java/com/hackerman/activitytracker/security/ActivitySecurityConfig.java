@@ -55,6 +55,7 @@ public class ActivitySecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/get/**").authenticated()
                         .requestMatchers(HttpMethod.POST,"/create").hasRole("USER")
 
+
                         .requestMatchers(HttpMethod.POST,"/api/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/logout").permitAll()
                         .anyRequest().authenticated();
@@ -64,14 +65,14 @@ public class ActivitySecurityConfig {
                     .logoutUrl("/logout")
                     .addLogoutHandler((request, response, authentication) -> {
                         System.out.println("***** LOGOUT HANDLER EXECUTED *****");
-                        response.setHeader("Test-Header","Eh yo buddy");
-//                        response.setHeader("Clear-Site-Data","\"*\"");
+//                        response.setHeader("Test-Header","Eh yo buddy");
+                        response.setHeader("Clear-Site-Data","\"*\"");
                     })
-                    .addLogoutHandler(new HeaderWriterLogoutHandler(
-                            new ClearSiteDataHeaderWriter(
-                                    ClearSiteDataHeaderWriter.Directive.ALL
-                            ))
-                    )
+//                    .addLogoutHandler(new HeaderWriterLogoutHandler(
+//                            new ClearSiteDataHeaderWriter(
+//                                    ClearSiteDataHeaderWriter.Directive.ALL
+//                            ))
+//                    )
                     .logoutSuccessHandler((request, response, authentication) -> {
                         System.out.println("--------LOGOUT SUCCESS HANDLER RAN----------");
                     });

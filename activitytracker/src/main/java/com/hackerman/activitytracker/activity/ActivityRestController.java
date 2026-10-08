@@ -3,18 +3,17 @@ package com.hackerman.activitytracker.activity;
 import com.hackerman.activitytracker.activity.repository.ActivityOutputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
-import com.hackerman.activitytracker.user.MyUser;
-import com.hackerman.activitytracker.user.UserRepository;
+import com.hackerman.activitytracker.user.*;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -35,24 +34,24 @@ public class ActivityRestController {
     }
 
     @GetMapping("/get/activity/names/self")
-    public List<String> getMyActivityNames(Authentication authentication){
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    public List<String> getMyActivityNames(@CurrentUser MyUserDetails user){
         //guaranteed to exist since cannot create user without db entity
-        MyUser user = userRepository.findByEmail(userDetails.getUsername()).get();
+//        MyUser user = userRepository.findByEmail(username).get();
         return activityRepository.findAllUniqueNamesForOwner(user.getId());
     }
 
     @GetMapping("/get/activity/all")
-    public List<ActivityOutputDTO> getAllActivity(Authentication authentication){
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+    public List<ActivityOutputDTO> getAllActivity(@CurrentUser MyUserDetails user){
+//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         //guaranteed to exist since cannot create user without db entity
-        MyUser user = userRepository.findByEmail(userDetails.getUsername()).get();
+//        MyUser user = userRepository.findByEmail(username).get();
         return activityRepository.findByOwnerId(user.getId());
     }
 
     @GetMapping("/get/activity/{id}")
-    public Optional<ActivityOutputDTO> getActivity(@PathVariable Long id){
-        return activityRepository.findByEntityId(id);
+    public Optional<ActivityOutputDTO> getActivity(@CurrentUser MyUserDetails user, @PathVariable Long id){
+//        Long userId = userRepository.findByEmail(username).get().getId();
+        return activityRepository.findByEntityId(user.getId(),id);
     }
 
     @PostMapping("/create/activity")
@@ -75,6 +74,12 @@ public class ActivityRestController {
         return ResponseEntity.created(location).body(activityInputDTO);
     }
 
+    @GetMapping
+    public ResponseEntity userActivityDetails(@CurrentUser MyUserDetails myUserDetails){
+        MyUser user = userRepository.findById(myUserDetails.getId()+"").get();
+        UserOutputDTO userOutputDTO = new UserOutputDTO(user);
+        List<ActivityOutputDTO> activityList = activityRepository.findByOwnerId(myUserDetails.getId());
 
-
+        return ResponseEntity.ok().body(Map.of("activities ",activityList,"user",userOutputDTO));
+    }
 }
