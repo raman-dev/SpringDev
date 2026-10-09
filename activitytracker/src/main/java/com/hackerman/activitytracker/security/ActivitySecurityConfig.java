@@ -39,6 +39,7 @@ public class ActivitySecurityConfig {
             requestMatcherConfigurer.requestMatchers("/logout");
             requestMatcherConfigurer.requestMatchers("/api/**");
             requestMatcherConfigurer.requestMatchers("/get/**");
+            requestMatcherConfigurer.requestMatchers("/user/**");
             requestMatcherConfigurer.requestMatchers("/create/**");
         }));
 
@@ -54,6 +55,7 @@ public class ActivitySecurityConfig {
                         //user based
                         .requestMatchers(HttpMethod.GET,"/get/**").authenticated()
                         .requestMatchers(HttpMethod.POST,"/create").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET,"/user/details").hasRole("USER")
 
 
                         .requestMatchers(HttpMethod.POST,"/api/login").permitAll()

@@ -68,7 +68,7 @@ public class ActivityRestController {
         return ResponseEntity.created(location).body(activityInputDTO);
     }
 
-    @GetMapping
+    @GetMapping("/user/details")
     public ResponseEntity userActivityDetails(@CurrentUser MyUserDetails myUserDetails){
         MyUser user = userRepository.findById(myUserDetails.getId()+"").get();
         UserOutputDTO userOutputDTO = new UserOutputDTO(user);

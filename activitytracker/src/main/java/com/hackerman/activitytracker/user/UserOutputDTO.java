@@ -2,6 +2,8 @@ package com.hackerman.activitytracker.user;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.Objects;
+
 public class UserOutputDTO {
     String displayName;
     String email;
@@ -14,7 +16,10 @@ public class UserOutputDTO {
     public UserOutputDTO() {
     }
 
-    public UserOutputDTO(@NonNull MyUser user) {
+    public UserOutputDTO(MyUser user) {
+        if (user == null){
+            throw new NullPointerException("User cannot be null");
+        }
         this.displayName = user.getEmail();
         this.email = user.getEmail();
     }
