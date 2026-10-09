@@ -35,22 +35,16 @@ public class ActivityRestController {
 
     @GetMapping("/get/activity/names/self")
     public List<String> getMyActivityNames(@CurrentUser MyUserDetails user){
-        //guaranteed to exist since cannot create user without db entity
-//        MyUser user = userRepository.findByEmail(username).get();
         return activityRepository.findAllUniqueNamesForOwner(user.getId());
     }
 
     @GetMapping("/get/activity/all")
     public List<ActivityOutputDTO> getAllActivity(@CurrentUser MyUserDetails user){
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        //guaranteed to exist since cannot create user without db entity
-//        MyUser user = userRepository.findByEmail(username).get();
         return activityRepository.findByOwnerId(user.getId());
     }
 
     @GetMapping("/get/activity/{id}")
     public Optional<ActivityOutputDTO> getActivity(@CurrentUser MyUserDetails user, @PathVariable Long id){
-//        Long userId = userRepository.findByEmail(username).get().getId();
         return activityRepository.findByEntityId(user.getId(),id);
     }
 
