@@ -70,6 +70,7 @@ public class ActivityRestController {
 
     @GetMapping("/user/details")
     public ResponseEntity userActivityDetails(@CurrentUser MyUserDetails myUserDetails){
+        System.out.println("get /user/details");
         MyUser user = userRepository.findById(myUserDetails.getId()+"").get();
         UserOutputDTO userOutputDTO = new UserOutputDTO(user);
         List<ActivityOutputDTO> activityList = activityRepository.findByOwnerId(myUserDetails.getId());
