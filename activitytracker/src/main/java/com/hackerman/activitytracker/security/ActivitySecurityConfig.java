@@ -1,9 +1,6 @@
 package com.hackerman.activitytracker.security;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.jspecify.annotations.Nullable;
+import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -14,18 +11,12 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
-
-import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -41,6 +32,7 @@ public class ActivitySecurityConfig {
             requestMatcherConfigurer.requestMatchers("/get/**");
             requestMatcherConfigurer.requestMatchers("/user/**");
             requestMatcherConfigurer.requestMatchers("/create/**");
+            requestMatcherConfigurer.requestMatchers("/actuator/**");
         }));
 
         http.securityContext((securityContext) -> {
@@ -60,6 +52,8 @@ public class ActivitySecurityConfig {
 
                         .requestMatchers(HttpMethod.POST,"/api/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/actuator/**").permitAll()
+//                        .requestMatchers(HttpMethod.GET,"/actuator/httpexchanges")
                         .anyRequest().authenticated();
             });
         http.logout((logout) -> {
@@ -88,6 +82,7 @@ public class ActivitySecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain userSecurityFilterChain(HttpSecurity http){
+
         //enable this security chain for the following paths
         http.securityMatchers(requestMatcherConfigurer -> {
             requestMatcherConfigurer.requestMatchers("/home");
@@ -121,9 +116,25 @@ public class ActivitySecurityConfig {
     }
 
     @Bean
+    public InMemoryHttpExchangeRepository httpExchangeRepository() {
+        return new InMemoryHttpExchangeRepository();
+    }
+
+    @Bean
     public SecurityContextRepository securityContextRepository(){
         return new HttpSessionSecurityContextRepository();
     }
+
+//    class PrintRequestFilter extends OncePerRequestFilter {
+//        @Override
+//        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+//            System.out.println(request.getHeaderNames());
+//            System.out.println(response.getStatus());
+//            System.out.println(response.getHeaderNames().stream().map(response::getHeader).toList());
+//            filterChain.doFilter(request,response);
+//        }
+//    }
+
 
     //create a default user on boot
 //    @Bean
