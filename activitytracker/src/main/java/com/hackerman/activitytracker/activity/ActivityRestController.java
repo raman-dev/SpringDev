@@ -49,7 +49,7 @@ public class ActivityRestController {
     }
 
     @PostMapping("/create/activity")
-    public ResponseEntity createActivityDtoWithDatetime(@Valid @RequestBody ActivityInputDTO activityInputDTO, BindingResult bindingResult){
+    public ResponseEntity createActivityDtoWithDatetime(@Valid @RequestBody ActivityInputDTO activityInputDTO, BindingResult bindingResult, @CurrentUser MyUserDetails myUserDetails){
         if (bindingResult.hasErrors()){
             bindingResult.getAllErrors().forEach(x -> System.out.println(x));
             return ResponseEntity.badRequest().build();
@@ -57,7 +57,7 @@ public class ActivityRestController {
 
         Activity activity = new Activity(activityInputDTO.getName(),
                 activityInputDTO.getStartTimeIso8601(),
-                activityInputDTO.getEndTimeIso8601(),null);
+                activityInputDTO.getEndTimeIso8601(),userRepository.findByEmail(myUserDetails.getUsername()).get());
         var savedActivity = activityRepository.save(activity);
         Long id = savedActivity.getEntityId();
 
