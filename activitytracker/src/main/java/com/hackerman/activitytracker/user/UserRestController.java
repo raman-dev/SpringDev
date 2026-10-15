@@ -98,7 +98,7 @@ public class UserRestController {
 
             String username = authenticationResponse.getName();
             System.out.println("authenticated.user => "+username);
-            return ResponseEntity.ok().body(Map.of("username",username));
+            return ResponseEntity.ok().body(Map.of("username",username,"displayName",username,"email",username));
         }
 
         return ResponseEntity.badRequest().body(List.of("Unknown error"));

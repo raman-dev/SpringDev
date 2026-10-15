@@ -1,0 +1,36 @@
+missing implementation
+-------------------------
+1.
+    after receiving activities from /user/details
+        does not update dashboard if today or this week or not from this week
+        does not update history view for last 7 days or ever
+
+2.
+    after creating a new activity in add activity view
+        does not update dashboard
+        does not update history
+
+3.
+    history search does not work despite having all activities received
+    after get call to /user/details
+
+shape of activity
+
+    endTimeStamp: "2026-09-14T09:00:00.000Z"
+    entityId: 90
+    name: "coding"
+    startTimeStamp: "2026-09-14T08:00:00.000Z"
+
+
+build: {
+    outDir: '../activitytracker/src/main/resources/static/vue-frontend',
+    assetsDir: 'vue-frontend',
+    rollupOptions:{
+      output: {
+        entryFileNames: 'frontend.bundle.js',  // JS files in "js" folder
+        chunkFileNames: `frontend.js`,
+        assetFileNames: 'frontend.[ext]',
+      },
+    },
+    emptyOutDir : true//will overwrite all content in directory
+  },
