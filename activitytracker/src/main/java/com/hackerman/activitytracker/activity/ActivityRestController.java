@@ -3,18 +3,16 @@ package com.hackerman.activitytracker.activity;
 import com.hackerman.activitytracker.activity.repository.ActivityOutputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
-import com.hackerman.activitytracker.activity.repository.ActivityResponse;
+import com.hackerman.activitytracker.activity.repository.ActivityResponseBody;
 import com.hackerman.activitytracker.user.*;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -59,7 +57,8 @@ public class ActivityRestController {
 
         Activity activity = new Activity(activityInputDTO.getName(),
                 activityInputDTO.getStartTimeIso8601(),
-                activityInputDTO.getEndTimeIso8601(),userRepository.findByEmail(myUserDetails.getUsername()).get());
+                activityInputDTO.getEndTimeIso8601(),
+                userRepository.findByEmail(myUserDetails.getUsername()).get());
         var savedActivity = activityRepository.save(activity);
         Long id = savedActivity.getEntityId();
 
@@ -67,9 +66,9 @@ public class ActivityRestController {
                 .fromPath("/activity/{id}")
                 .buildAndExpand(id)
                 .toUri();
-        return ResponseEntity.created(location).body(new ActivityResponse(savedActivity));
-    }
 
+        return ResponseEntity.created(location).body(ActivityResponseBody.fromActivity(savedActivity));
+    }
 
     record UserDetailsResponse(List<ActivityOutputDTO> activities,UserOutputDTO user){}
 

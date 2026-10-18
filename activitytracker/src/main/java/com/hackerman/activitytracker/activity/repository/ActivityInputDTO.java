@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 
@@ -42,12 +44,18 @@ public class ActivityInputDTO {
 
 
     public String getStartTimeIso8601(){
-        return ZonedDateTime.of(getDate(),getStartTime(),getTimeZone().toZoneId()).toString();
+        return toISO8601(this.date,this.startTime,this.timeZone);
     }
 
     public String getEndTimeIso8601(){
-        return ZonedDateTime.of(getDate(),getEndTime(),getTimeZone().toZoneId()).toString();
+        return toISO8601(this.date,this.endTime,this.timeZone);
     }
+
+    private String toISO8601(LocalDate localDate, LocalTime localTime, TimeZone timeZone) {
+        return ZonedDateTime.of(localDate,localTime,timeZone.toZoneId())
+                .format(DateTimeFormatter.ISO_INSTANT);//returns date time in specified format
+    }
+
 
     public TimeZone getTimeZone() {
         return timeZone;
