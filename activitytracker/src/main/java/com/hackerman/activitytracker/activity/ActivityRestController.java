@@ -3,6 +3,7 @@ package com.hackerman.activitytracker.activity;
 import com.hackerman.activitytracker.activity.repository.ActivityOutputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityInputDTO;
 import com.hackerman.activitytracker.activity.repository.ActivityRepository;
+import com.hackerman.activitytracker.activity.repository.ActivityResponse;
 import com.hackerman.activitytracker.user.*;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ public class ActivityRestController {
         this.activityRepository = activityRepository;
         this.userRepository = userRepository;
     }
+
 
     @GetMapping("/get/activity/names")
     public List<String> getActivityNames(){
@@ -65,8 +67,11 @@ public class ActivityRestController {
                 .fromPath("/activity/{id}")
                 .buildAndExpand(id)
                 .toUri();
-        return ResponseEntity.created(location).body(activityInputDTO);
+        return ResponseEntity.created(location).body(new ActivityResponse(savedActivity));
     }
+
+
+    record UserDetailsResponse(List<ActivityOutputDTO> activities,UserOutputDTO user){}
 
     @GetMapping("/user/details")
     public ResponseEntity userActivityDetails(@CurrentUser MyUserDetails myUserDetails){
@@ -75,6 +80,6 @@ public class ActivityRestController {
         UserOutputDTO userOutputDTO = new UserOutputDTO(user);
         List<ActivityOutputDTO> activityList = activityRepository.findByOwnerId(myUserDetails.getId());
 
-        return ResponseEntity.ok().body(Map.of("activities ",activityList,"user",userOutputDTO));
+        return ResponseEntity.ok().body(new UserDetailsResponse(activityList,userOutputDTO));
     }
 }
