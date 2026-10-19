@@ -14,6 +14,8 @@ missing implementation
     history search does not work despite having all activities received
     after get call to /user/details
 
+
+----------------------------
 shape of activity
 
     endTimeStamp: "2026-09-14T09:00:00.000Z"
@@ -34,3 +36,6 @@ build: {
     },
     emptyOutDir : true//will overwrite all content in directory
   },
+
+  - remove call to /user/details after add activity just update using the activities using storeToRefs
+  - 
