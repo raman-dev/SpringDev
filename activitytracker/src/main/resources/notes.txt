@@ -24,6 +24,7 @@ shape of activity
     startTimeStamp: "2026-09-14T08:00:00.000Z"
 
 
+add this to the vite config
 build: {
     outDir: '../activitytracker/src/main/resources/static/vue-frontend',
     assetsDir: 'vue-frontend',
@@ -38,4 +39,4 @@ build: {
   },
 
   - remove call to /user/details after add activity just update using the activities using storeToRefs
-  - 
+  - use font-size variable with unit rem instead of hardcoded font-sizes
