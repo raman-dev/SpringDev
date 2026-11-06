@@ -41,7 +41,7 @@ echo Removed %USERPROFILE%\Documents\ATFTemp folder
  
 @REM write contents of USERPROFILE\Documents\ActivityTrackerFrontend to ActivityTrackerFrontend
 echo Copying ActivityTrackerFrontend to main project folder.
-copy /y %USERPROFILE%\Documents\ActivityTrackerFrontend\* ActivityTrackerFrontend
+xcopy /s /e /h /y /i  %USERPROFILE%\Documents\ActivityTrackerFrontend ActivityTrackerFrontend\
 
 prompt
 @echo on

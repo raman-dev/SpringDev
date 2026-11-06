@@ -41,4 +41,4 @@ build: {
   - remove call to /user/details after add activity just update using the activities using storeToRefs
   - localize styles to each respective component
   - use font-size variables with unit rem instead of hardcoded font-sizes
-
+---------------------------------------------------------------------------
